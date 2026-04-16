@@ -749,6 +749,19 @@
         loc.innerHTML = `<span>📍 Section ${section}</span><span class="now-location-change">[change]</span>`;
       }
 
+      // Clear chat history — section changed, fresh context
+      conversationHistory = [];
+      const cm = document.getElementById('chat-messages');
+      if (cm) {
+        cm.innerHTML = `
+          <div class="welcome-card">
+            <div class="welcome-title">👋 Welcome to VenueIQ</div>
+            <div class="welcome-text">
+              You're in <strong>Section ${section}</strong>. Ask me anything — food, gates, restrooms!
+            </div>
+          </div>`;
+      }
+
       if (meetupCode && myMeetupName) {
         fetch(`${BACKEND_URL}/api/meetup/${meetupCode}/location`, {
           method: 'PATCH',
@@ -1058,6 +1071,7 @@
       setSection(letter);
       const p = el.closest('.section-picker');
       if(p) p.remove();
+      switchTab('chat');
       chatInput.value = `I am in section ${letter}`;
       handleSend();
     };
@@ -1100,7 +1114,7 @@
       try {
         const res = await fetch(`${BACKEND_URL}/api/chat`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, history: conversationHistory })
+          body: JSON.stringify({ message: text, history: conversationHistory, section: userSection })
         });
         if(res.ok) rObj = await res.json();
         else throw new Error("API fail");

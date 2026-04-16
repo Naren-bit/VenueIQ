@@ -132,11 +132,11 @@ async function generateAlert(zones) {
  * Smart local fallback — provides genuinely useful answers using intent matching
  * when Gemini is unreachable (offline, quota, network error).
  */
-function localFallback(message, zones, history = []) {
+function localFallback(message, zones, history = [], explicitSection = null) {
   const m = message.toLowerCase();
 
   const fullHistory = [...history, { role: 'user', text: message }];
-  const userSection = extractSectionFromChat(fullHistory);
+  const userSection = explicitSection || extractSectionFromChat(fullHistory);
 
   // If the message contains no explicit intent keywords, but does contain a location,
   // scan history for the most recent intent keyword to reply to the pending question.

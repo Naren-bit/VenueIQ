@@ -14,7 +14,7 @@ const { getAllForecasts } = require('../services/predictor');
  */
 router.post('/', async (req, res, next) => {
   try {
-    const { message, history = [] } = req.body;
+    const { message, history = [], section = null } = req.body;
 
     // Validation
     if (!message || typeof message !== 'string') {
@@ -41,10 +41,10 @@ router.post('/', async (req, res, next) => {
 
     let reply;
     try {
-      reply = await chat(trimmedMessage, zones, history, null, forecasts);
+      reply = await chat(trimmedMessage, zones, history, section, forecasts);
     } catch (err) {
       console.warn('[Chat] Gemini unavailable, using local fallback:', err.message);
-      reply = localFallback(trimmedMessage, zones, history);
+      reply = localFallback(trimmedMessage, zones, history, section);
     }
 
     res.json({

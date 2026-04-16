@@ -1,6 +1,21 @@
+# Dependencies
 node_modules/
+
+# Environment variables
 .env
+.env.local
+
+# Logs
 *.log
+npm-debug.log*
+
+# OS artifacts
 .DS_Store
 Thumbs.db
+
+# Coverage
 coverage/
+
+# IDE
+.vscode/
+.idea/
