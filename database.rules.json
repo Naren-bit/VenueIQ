@@ -1,0 +1,45 @@
+{
+  "rules": {
+    "zones": {
+      ".read": true,
+      ".write": false,
+      "$zoneId": {
+        "capacity":     { ".write": true },
+        "wait":         { ".write": true },
+        "updatedAt":    { ".write": true },
+        "closed":       { ".write": true },
+        "operatorNote": { ".write": true }
+      }
+    },
+    "alerts": {
+      ".read": true,
+      ".write": false,
+      "$alertId": {
+        ".write": true,
+        ".validate": "newData.hasChildren(['title', 'body', 'timestamp'])",
+        "title": { ".validate": "newData.isString() && newData.val().length <= 200" },
+        "body": { ".validate": "newData.isString() && newData.val().length <= 500" },
+        "urgency": { ".validate": "newData.isString() && (newData.val() === 'urgent' || newData.val() === 'info')" },
+        "timestamp": { ".validate": "newData.isNumber()" }
+      }
+    },
+    "reports": {
+      ".read": false,
+      "$zoneId": { ".write": true }
+    },
+    "history": {
+      ".read": false,
+      ".write": false,
+      "$zoneId": { ".write": true, ".read": true }
+    },
+    "meetups": {
+      ".read": false,
+      ".write": false,
+      "$code": {
+        ".read": true,
+        ".write": true,
+        ".validate": "newData.hasChildren(['code','createdAt','expiresAt','members'])"
+      }
+    }
+  }
+}

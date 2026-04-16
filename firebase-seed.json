@@ -1,0 +1,13 @@
+{
+  "zones": {
+    "north-gate": { "id": "north-gate", "name": "North Gate", "type": "gate", "wait": 4, "capacity": 0.28 },
+    "south-gate": { "id": "south-gate", "name": "South Gate", "type": "gate", "wait": 18, "capacity": 0.79 },
+    "east-food": { "id": "east-food", "name": "East Food Court", "type": "food", "wait": 12, "capacity": 0.61 },
+    "west-food": { "id": "west-food", "name": "West Food Court", "type": "food", "wait": 6, "capacity": 0.34 },
+    "north-rest": { "id": "north-rest", "name": "North Restrooms", "type": "restroom", "wait": 2, "capacity": 0.19 },
+    "south-rest": { "id": "south-rest", "name": "South Restrooms", "type": "restroom", "wait": 9, "capacity": 0.55 },
+    "vip-entry": { "id": "vip-entry", "name": "VIP Entry", "type": "gate", "wait": 1, "capacity": 0.10 },
+    "main-bar": { "id": "main-bar", "name": "Main Bar L2", "type": "food", "wait": 15, "capacity": 0.72 }
+  },
+  "alerts": {}
+}

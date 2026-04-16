@@ -1,0 +1,14 @@
+{
+  "name": "venueiq",
+  "version": "1.0.0",
+  "description": "VenueIQ — AI-powered stadium companion PWA. Built for PromptWars hackathon.",
+  "private": true,
+  "scripts": {
+    "dev": "cd venueiq-backend && npm run dev",
+    "start": "cd venueiq-backend && npm start",
+    "test": "cd venueiq-backend && npm test",
+    "install:backend": "cd venueiq-backend && npm install",
+    "deploy": "firebase deploy",
+    "seed": "firebase database:set / firebase-seed.json"
+  }
+}

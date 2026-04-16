@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
+  <meta name="description" content="VenueIQ uses Gemini AI and real-time crowd data to guide stadium fans to the shortest queues, fastest gates, and best exits — at any venue, any event.">
+  <meta name="theme-color" content="#07080f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>VenueIQ — Smart Stadium Companion</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+    /* RESET & BASE */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --bg:        #07080f;
+      --surface:   #0f1018;
+      --surface2:  #161720;
+      --surface3:  #1d1e2c;
+      --border:    rgba(255,255,255,0.07);
+      --border2:   rgba(255,255,255,0.13);
+      --accent:    #39d98a;
+      --accent2:   #7c6af7;
+      --warn:      #f5a623;
+      --danger:    #f26464;
+      --text:      #eeeef2;
+      --muted:     #6b6e85;
+      --mono:      'Space Mono', monospace;
+      --sans:      'DM Sans', sans-serif;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Accessibility Focus */
+    a:focus-visible, button:focus-visible, textarea:focus-visible, input:focus-visible {
+      outline: 2px solid var(--accent2);
+      outline-offset: 2px;
+    }
+    
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      .typing span, .live-dot, .zone-card, .msg, .tab::after, .send-btn, .qr, .alert-card {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
+    /* APP SHELL */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+    @media (max-width: 480px) {
+      #app { border: none; }
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 14px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .back-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      width: 20px;
+      height: 20px;
+    }
+    .back-btn svg {
+      stroke: var(--muted);
+      width: 20px;
+      height: 20px;
+    }
+    .header-logo {
+      font-family: var(--mono);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+    }
+    .header-logo span { color: var(--accent); }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pill {
+      display: flex;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 4px 8px;
+    }
+    .ws-pill {
+      background: rgba(124,106,247,0.12);
+      border: 1px solid rgba(124,106,247,0.2);
+      color: var(--accent2);
+    }
+    .live-pill {
+      background: rgba(57,217,138,0.1);
+      border: 1px solid rgba(57,217,138,0.2);
+      color: var(--accent);
+      gap: 6px;
+    }
+    .live-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: blink 1.5s infinite ease;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    /* TAB BAR */
+    .tab-bar {
+      display: flex;
+      height: 44px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      background: transparent;
+      position: relative;
+    }
+    .tab-bar::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: var(--tab-indicator-left, 0);
+      width: var(--tab-indicator-width, 20%);
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px 2px 0 0;
+      transition: left 0.2s ease, width 0.2s ease;
+      transform: translateX(12.5%); /* center the active indicator 50% width inside the tab */
+    }
+    .tab {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      position: relative;
+    }
+    .tab.active { color: var(--text); }
+    .tab-icon { font-size: 13px; }
+
+    /* PANELS */
+    .panels {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    .panel {
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      opacity: 0;
+      pointer-events: none;
+      display: none;
+    }
+    .panel.active {
+      opacity: 1;
+      display: flex;
+      flex-direction: column;
+      pointer-events: auto;
+    }
+    .panel::-webkit-scrollbar { width: 4px; }
+    .panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+
+    /* NOW TAB */
+    .now-header {
+      padding: 16px 20px;
+    }
+    .now-location {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .now-location-change { color: var(--muted); font-size: 10px; }
+    .now-subtitle { font-size: 11px; color: var(--muted); }
+    
+    .now-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 0 20px 16px;
+    }
+    .now-card {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      min-height: 68px;
+    }
+    .now-card-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .now-card-icon { font-size: 22px; }
+    .now-card-body { display: flex; flex-direction: column; gap: 2px; }
+    .now-card-label { font-size: 11px; color: var(--text); font-weight: 500; margin-bottom: 2px; }
+    .now-card-name { font-size: 13px; color: var(--text); }
+    .now-card-trend { font-size: 11px; color: var(--muted); }
+    .now-card-trend .trend-danger { color: var(--danger); }
+    .now-card-trend .trend-accent { color: var(--accent); }
+    
+    .now-card-right {
+      text-align: right;
+    }
+    .now-card-wait {
+      font-family: var(--mono);
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .now-card-wait .unit { font-size: 11px; font-weight: 400; opacity: 0.6; font-family: var(--sans); }
+    .now-footer { font-size: 11px; color: var(--muted); text-align: center; padding-bottom: 20px; }
+
+    /* CHAT PANEL */
+    .chat-messages {
+      flex: 1;
+      padding: 16px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .msg { animation: msgIn 0.22s ease forwards; }
+    
+    .welcome-card {
+      background: linear-gradient(135deg, rgba(57,217,138,0.07), rgba(124,106,247,0.05));
+      border: 1px solid rgba(57,217,138,0.14);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+    }
+    .welcome-title { font-family: var(--sans); font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+    .welcome-text { font-family: var(--sans); font-size: 12.5px; color: var(--muted); font-weight: 400; line-height: 1.5; }
+    .welcome-text strong { color: var(--accent); font-weight: inherit; }
+
+    .msg-user-wrap { align-self: flex-end; max-width: 82%; display: flex; flex-direction: column; align-items: flex-end; }
+    .msg-user {
+      background: var(--accent);
+      color: #07080f;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 18px;
+      border-bottom-right-radius: 5px;
+      padding: 10px 14px;
+      line-height: 1.4;
+    }
+    .msg-bot-wrap { align-self: flex-start; max-width: 82%; display: flex; flex-direction: column; align-items: flex-start; width: 100%; }
+    .msg-bot {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 400;
+      border-radius: 18px;
+      border-bottom-left-radius: 5px;
+      padding: 10px 14px;
+      line-height: 1.45;
+    }
+    .msg-bot strong { color: var(--accent); font-weight: 600; }
+    
+    .msg-timestamp { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 4px; }
+    
+    .typing {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 18px;
+      border-bottom-left-radius: 5px;
+      padding: 12px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      align-self: flex-start;
+      margin-top: 8px;
+    }
+    .typing span {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--muted);
+      animation: typingBounce 1.2s ease infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.18s; }
+    .typing span:nth-child(3) { animation-delay: 0.36s; }
+    @keyframes typingBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    /* INLINE ZONE CARDS (CHAT) */
+    .inline-zones {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+      width: 100%;
+    }
+    .zone-card {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      cursor: pointer;
+      min-height: 68px;
+    }
+    .zone-card:hover { border-color: var(--border2); }
+    @keyframes flash {
+      0%   { border-color: var(--accent); }
+      100% { border-color: var(--border); }
+    }
+    .zone-card.flash { animation: flash 0.6s ease; }
+    .zone-card-name { font-family: var(--sans); font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+    .zone-card-wait { font-family: var(--mono); font-size: 20px; font-weight: 700; line-height: 1; margin-bottom: 6px; }
+    .zone-card-wait .unit { font-size: 11px; font-weight: 400; opacity: 0.6; }
+    .zone-bar-track { height: 3px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden; }
+    .zone-bar-fill { height: 100%; border-radius: 3px; }
+    
+    .c-ok { color: var(--accent); }
+    .bg-ok { background: var(--accent); }
+    .c-warn { color: var(--warn); }
+    .bg-warn { background: var(--warn); }
+    .c-danger { color: var(--danger); }
+    .bg-danger { background: var(--danger); }
+
+    /* INLINE SECTION PICKER */
+    .section-picker {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 8px;
+      width: 100%;
+    }
+    .sp-title { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; }
+    .sp-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .sp-label { font-size: 12px; color: var(--text); }
+    .sp-btn-group { display: flex; gap: 6px; }
+    .sp-btn {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .sp-btn:hover {
+      border-color: var(--accent);
+      background: rgba(57,217,138,0.09);
+      color: var(--accent);
+    }
+
+    /* QUICK REPLIES */
+    .quick-replies {
+      display: flex;
+      gap: 8px;
+      padding: 10px 20px;
+      overflow-x: auto;
+      flex-shrink: 0;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; /* Firefox */
+    }
+    .quick-replies::-webkit-scrollbar { display: none; }
+    .qr {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      padding: 7px 14px;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 11.5px;
+      white-space: nowrap;
+      cursor: pointer;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      transition: border-color 0.18s, background 0.18s, color 0.18s;
+    }
+    .qr:hover {
+      border-color: rgba(57,217,138,0.35);
+      background: rgba(57,217,138,0.07);
+      color: var(--accent);
+    }
+
+    /* INPUT ROW */
+    .chat-input-area {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      padding: 10px 16px calc(20px + var(--safe-bottom));
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+    .chat-input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 24px;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13px;
+      padding: 12px 16px;
+      min-height: 42px;
+      max-height: 100px;
+      resize: none;
+      outline: none;
+    }
+    .chat-input::placeholder { color: var(--muted); }
+    .chat-input:focus {
+      border-color: var(--accent2);
+      box-shadow: 0 0 0 3px rgba(124,106,247,0.12);
+    }
+    .send-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .send-btn:active { transform: scale(0.92); }
+    .send-btn svg { fill: #07080f; width: 16px; height: 16px; }
+
+    /* MAP PANEL */
+    .map-canvas-wrap {
+      flex: 1;
+      position: relative;
+      background: #12121a;
+      width: 100%;
+    }
+    #venue-map { display: block; width: 100%; height: 100%; }
+    .map-legend {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      background: rgba(7,8,15,0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .map-zones { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-shrink: 0; }
+
+    /* ALERTS PANEL */
+    .alerts-panel { padding: 20px; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .alert-card {
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      animation: slideIn 0.3s ease forwards;
+    }
+    .alert-icon { font-size: 20px; flex-shrink: 0; }
+    .alert-content { flex: 1; }
+    .alert-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .alert-body { font-size: 12px; color: var(--text); line-height: 1.5; margin-bottom: 6px; }
+    .alert-time { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+    .alert-urgent { border: 1px solid rgba(242,100,100,0.3); background: rgba(242,100,100,0.05); }
+    .alert-info   { border: 1px solid rgba(124,106,247,0.25); background: rgba(124,106,247,0.04); }
+    .alert-exit   { border: 1px solid rgba(245,166,35,0.3); background: rgba(245,166,35,0.05); }
+
+    /* GROUP PANEL */
+    .group-panel { padding: 24px 20px; }
+    .group-code-wrap { text-align: center; margin-bottom: 32px; }
+    .group-lbl { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+    .group-code { font-family: var(--mono); font-size: 2.5rem; font-weight: 700; color: var(--accent); letter-spacing: 0.2em; }
+    
+    .member-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+    .member-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--accent2);
+      color: var(--text);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 14px;
+    }
+    .member-name { font-size: 13px; color: var(--text); flex: 1; }
+    .member-badge {
+      background: rgba(57,217,138,0.1);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 4px 6px;
+      border-radius: 4px;
+    }
+    .group-input-wrap { display: flex; gap: 8px; margin-top: 16px; }
+    .group-input { flex: 1; background: var(--surface2); border: 1px solid var(--border2); border-radius: 24px; padding: 0 16px; color: var(--text); outline: none; }
+    .group-input:focus { border-color: var(--accent2); }
+    .group-btn {
+      background: var(--surface3); border: 1px solid var(--border); border-radius: 24px; padding: 0 16px; color: var(--text); cursor: pointer; height: 42px; font-weight: 600;
+    }
+    .group-btn:hover { border-color: var(--accent); color: var(--accent); }
+    
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- HEADER -->
+    <header class="header">
+      <a href="/" class="header-brand" aria-label="Back">
+        <div class="back-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="header-logo"><span style="color:var(--text)">Venue</span><span>IQ</span></div>
+      </a>
+      <div class="header-right">
+        <div class="pill ws-pill" id="ws-indicator" aria-label="WebSocket status">WS &nbsp;&nbsp;&nbsp;</div>
+        <div class="pill live-pill" id="live-indicator"><div class="live-dot" id="status-dot"></div><span id="status-text">LIVE</span></div>
+      </div>
+    </header>
+
+    <!-- TAB BAR -->
+    <nav class="tab-bar" id="tab-bar" role="tablist" aria-label="App views">
+      <button class="tab active" data-tab="now" role="tab" aria-selected="true" aria-controls="view-now"><span class="tab-icon">⚡</span> Now</button>
+      <button class="tab" data-tab="chat" role="tab" aria-selected="false" aria-controls="view-chat"><span class="tab-icon">💬</span> Assistant</button>
+      <button class="tab" data-tab="map" role="tab" aria-selected="false" aria-controls="view-map"><span class="tab-icon">🗺️</span> Map</button>
+      <button class="tab" data-tab="alerts" role="tab" aria-selected="false" aria-controls="view-alerts"><span class="tab-icon">🔔</span> Alerts</button>
+      <button class="tab" data-tab="group" role="tab" aria-selected="false" aria-controls="view-group"><span class="tab-icon">👥</span> Group</button>
+    </nav>
+
+    <main class="panels">
+
+      <!-- NOW VIEW -->
+      <section class="panel active" id="view-now" role="tabpanel" aria-labelledby="view-now">
+        <div class="now-header">
+          <div class="now-location" id="now-location" onclick="showOnboarding()">
+            <span>📍 Section Not Set</span>
+            <span class="now-location-change">[change]</span>
+          </div>
+          <div class="now-subtitle">Live venue snapshot</div>
+        </div>
+        <div class="now-cards" id="now-cards"></div>
+        <div class="now-footer">Tap any card to ask the assistant</div>
+      </section>
+
+      <!-- CHAT VIEW -->
+      <section class="panel" id="view-chat" role="tabpanel" aria-labelledby="view-chat" style="height:100%">
+        <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-label="Chat messages">
+          <div class="welcome-card">
+            <div class="welcome-title">👋 Welcome to VenueIQ</div>
+            <div class="welcome-text">
+              Your AI companion with <strong>live crowd data</strong> for every zone. Just ask!
+            </div>
+          </div>
+        </div>
+        
+        <div class="quick-replies" id="quick-replies">
+          <button class="qr" aria-label="Quick reply: Restrooms nearby">🚻 Restrooms nearby</button>
+          <button class="qr" aria-label="Quick reply: Post-game parking">🚗 Post-game parking</button>
+          <button class="qr" aria-label="Quick reply: Find my seat">📍 Find my seat</button>
+          <button class="qr" aria-label="Quick reply: Best gate now">🚪 Best gate now</button>
+          <button class="qr" aria-label="Quick reply: Shortest food queue">🍔 Shortest food queue</button>
+        </div>
+        <div class="chat-input-area">
+          <textarea class="chat-input" id="chat-input" aria-label="Message input" aria-multiline="true" placeholder="Ask about queues, gates, food..." rows="1"></textarea>
+          <button class="send-btn" id="send-btn" aria-label="Send message">
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- MAP VIEW -->
+      <section class="panel" id="view-map" role="tabpanel" aria-labelledby="view-map">
+        <div class="map-canvas-wrap">
+          <canvas id="venue-map"></canvas>
+          <div class="map-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Low wait</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--warn)"></div> Moderate</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--danger)"></div> High</div>
+          </div>
+        </div>
+        <div class="map-zones" id="map-zone-cards"></div>
+      </section>
+
+      <!-- ALERTS VIEW -->
+      <section class="panel" id="view-alerts" role="tabpanel" aria-labelledby="view-alerts">
+        <div class="alerts-panel" id="alerts-list"></div>
+      </section>
+
+      <!-- GROUP VIEW -->
+      <section class="panel" id="view-group" role="tabpanel" aria-labelledby="view-group">
+        <div class="group-panel">
+          <div id="meetup-create">
+            <div class="group-lbl">CREATE OR JOIN GROUP</div>
+            <div class="group-input-wrap">
+              <input type="text" id="meetup-name" class="group-input" placeholder="Your name">
+              <button onclick="createMeetup()" class="group-btn">Create</button>
+            </div>
+            <div style="margin:20px 0; text-align:center; color:var(--muted); font-size:12px;">OR</div>
+            <div class="group-input-wrap">
+              <input type="text" id="meetup-join-code" class="group-input" placeholder="Code" style="font-family:var(--mono); text-transform:uppercase">
+              <button onclick="joinMeetup()" class="group-btn">Join</button>
+            </div>
+          </div>
+          
+          <div id="meetup-active" style="display:none">
+            <button onclick="leaveMeetup()" class="group-btn" style="float:right; height:32px; font-size:11px">Leave</button>
+            <div class="group-code-wrap">
+              <div class="group-lbl">SHARE THIS CODE</div>
+              <div class="group-code" id="meetup-code-display"></div>
+            </div>
+            <div id="meetup-members"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    /** @type {string} */
+    const BACKEND_URL = window.location.hostname === 'localhost' ? 'http://localhost:3001' : window.location.origin;
+
+    const WAIT_THRESHOLDS = { ok: 5, warn: 14 };
+
+    const MOCK_ZONES = [
+      { id: 'north-gate', name: 'North Gate',      type: 'gate',     wait: 4,  capacity: 0.28 },
+      { id: 'south-gate', name: 'South Gate',      type: 'gate',     wait: 18, capacity: 0.79 },
+      { id: 'east-food',  name: 'East Food Court', type: 'food',     wait: 12, capacity: 0.61 },
+      { id: 'west-food',  name: 'West Food Court', type: 'food',     wait: 6,  capacity: 0.34 },
+      { id: 'north-rest', name: 'North Restrooms', type: 'restroom', wait: 2,  capacity: 0.19 },
+      { id: 'vip-entry',  name: 'VIP Entry',       type: 'gate',     wait: 1,  capacity: 0.10 },
+      { id: 'main-bar',   name: 'Main Bar L2',     type: 'food',     wait: 15, capacity: 0.72 },
+      { id: 'south-rest', name: 'South Restrooms', type: 'restroom', wait: 9,  capacity: 0.55 },
+    ];
+
+    let alertsData = [
+      { id: '1', type: 'urgent', icon: '⚠️', title: 'High congestion — South Gate', body: '18 min wait. North Gate has only 4 min — saves 14 minutes.', timestamp: Date.now() - 120000 },
+      { id: '2', type: 'info',   icon: '🍔', title: 'West Food Court nearly empty', body: 'Best time to grab food — 6 min wait. East Court is at 12 min.', timestamp: Date.now() - 300000 },
+      { id: '3', type: 'exit',   icon: '🚗', title: 'Parking Lot C at 92%',         body: 'Lots A and D still have space. Plan your exit now.', timestamp: Date.now() - 540000 },
+      { id: '4', type: 'urgent', icon: '🌧️', title: 'Light rain expected at 20:30',  body: 'Gate 4 has covered walkways. Factor this into your exit plan.', timestamp: Date.now() - 780000 },
+    ];
+
+    let currentZones = [...MOCK_ZONES];
+    let conversationHistory = [];
+    let isThinking = false;
+    let activeTab = 'now';
+    let backendConnected = false;
+    let wsConnected = false;
+    let currentForecasts = {};
+    let userSection = null;
+
+    // DOM
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    const tabBar = document.getElementById('tab-bar');
+    const alertsList = document.getElementById('alerts-list');
+    const statusText = document.getElementById('status-text');
+    const wsIndicator = document.getElementById('ws-indicator');
+    
+    function getSection() { return userSection; }
+    function setSection(section) {
+      userSection = section;
+      renderNowTab(currentZones, userSection, currentForecasts);
+      
+      const loc = document.getElementById('now-location');
+      if (loc) {
+        loc.innerHTML = `<span>📍 Section ${section}</span><span class="now-location-change">[change]</span>`;
+      }
+
+      if (meetupCode && myMeetupName) {
+        fetch(`${BACKEND_URL}/api/meetup/${meetupCode}/location`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: myMeetupName, section: section })
+        }).catch(() => console.warn('Failed to sync location'));
+      }
+    }
+
+    let socket = null;
+    function initSocket() {
+      try {
+        socket = io(BACKEND_URL, {
+          transports: ['websocket', 'polling'],
+          reconnectionAttempts: 5,
+          reconnectionDelay: 2000,
+          timeout: 5000
+        });
+
+        socket.on('connect', () => {
+          wsConnected = true;
+          wsIndicator.innerHTML = 'WS &bull;';
+          wsIndicator.style.color = 'var(--accent)';
+          statusText.textContent = 'LIVE';
+        });
+
+        socket.on('disconnect', () => {
+          wsConnected = false;
+          wsIndicator.textContent = 'WS ○';
+          wsIndicator.style.color = 'var(--muted)';
+        });
+
+        socket.on('zones:updated', (updatedZones) => {
+          currentZones = updatedZones;
+          renderZoneGrid(currentZones, document.getElementById('map-zone-cards'));
+          renderNowTab(currentZones, getSection(), currentForecasts);
+          if (activeTab === 'map') drawMap(currentZones);
+          flashZones();
+        });
+
+        socket.on('alert:new', (alert) => {
+          alertsData.unshift(alert);
+          renderAlerts(alertsData);
+        });
+      } catch (err) {}
+    }
+
+    async function loadInitialData() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/zones`);
+        if (res.ok) {
+          const data = await res.json();
+          currentZones = data.zones;
+          backendConnected = true;
+          statusText.textContent = 'LIVE';
+        }
+      } catch {
+        statusText.textContent = 'DEMO';
+      }
+
+      renderZoneGrid(currentZones, document.getElementById('map-zone-cards'));
+      setTimeout(() => drawMap(currentZones), 100);
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/alerts`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.alerts.length > 0) alertsData = data.alerts;
+        }
+      } catch {}
+
+      renderAlerts(alertsData);
+
+      try {
+        const fRes = await fetch(`${BACKEND_URL}/api/zones/forecast`);
+        if (fRes.ok) {
+          const fData = await fRes.json();
+          currentForecasts = Object.fromEntries(fData.zones.map(z => [z.id, z.forecast]));
+        }
+      } catch {}
+
+      renderNowTab(currentZones, getSection(), currentForecasts);
+    }
+
+    function switchTab(tab) {
+      const btn = document.querySelector(`.tab[data-tab="${tab}"]`);
+      if (btn) {
+        activeTab = tab;
+        document.querySelectorAll('.tab').forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-selected', 'false');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+        
+        const idx = [...tabBar.querySelectorAll('.tab')].indexOf(btn);
+        const totalTabs = tabBar.querySelectorAll('.tab').length;
+        tabBar.style.setProperty('--tab-indicator-left', `${(idx / totalTabs) * 100}%`);
+        tabBar.style.setProperty('--tab-indicator-width', `${(100 / totalTabs) * 0.75}%`);
+        
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(`view-${tab}`).classList.add('active');
+        if (tab === 'map') setTimeout(() => drawMap(currentZones), 50);
+      }
+    }
+
+    // Keydown for tab bar (Accessibility)
+    tabBar.addEventListener('keydown', (e) => {
+      const tabs = [...tabBar.querySelectorAll('.tab')];
+      const idx = tabs.indexOf(document.activeElement);
+      if (idx > -1) {
+        let nextIdx = idx;
+        if (e.key === 'ArrowRight') nextIdx = (idx + 1) % tabs.length;
+        if (e.key === 'ArrowLeft') nextIdx = (idx - 1 + tabs.length) % tabs.length;
+        if (nextIdx !== idx) {
+          tabs[nextIdx].focus();
+          switchTab(tabs[nextIdx].dataset.tab);
+        }
+      }
+    });
+
+    tabBar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.tab');
+      if (btn) switchTab(btn.dataset.tab);
+    });
+
+    /** @param {string} msg */
+    window.sendQuick = function(msg) {
+      switchTab('chat');
+      chatInput.value = msg;
+      handleSend();
+    };
+
+    document.getElementById('quick-replies').addEventListener('click', (e) => {
+      const chip = e.target.closest('.qr');
+      if (chip) {
+        chatInput.value = chip.textContent.trim();
+        handleSend();
+      }
+    });
+
+    /**
+     * @param {number} wait
+     * @returns {string} color class
+     */
+    function getCssColorClass(wait) {
+      if (wait <= WAIT_THRESHOLDS.ok) return 'c-ok';
+      if (wait <= WAIT_THRESHOLDS.warn) return 'c-warn';
+      return 'c-danger';
+    }
+    function getBgColorClass(wait) {
+      if (wait <= WAIT_THRESHOLDS.ok) return 'bg-ok';
+      if (wait <= WAIT_THRESHOLDS.warn) return 'bg-warn';
+      return 'bg-danger';
+    }
+
+    function renderNowTab(zones, section, forecasts) {
+      const nowCards = document.getElementById('now-cards');
+      if (!nowCards) return;
+      if (!section) {
+        nowCards.innerHTML = `
+          <div class="section-picker">
+            <div class="sp-title">Which stand are you in?</div>
+            <div class="sp-row">
+              <span class="sp-label">North stand</span>
+              <div class="sp-btn-group">
+                <div class="sp-btn" onclick="setSection('A')">A</div><div class="sp-btn" onclick="setSection('B')">B</div><div class="sp-btn" onclick="setSection('C')">C</div>
+              </div>
+            </div>
+            <div class="sp-row">
+              <span class="sp-label">East stand</span>
+              <div class="sp-btn-group">
+                <div class="sp-btn" onclick="setSection('D')">D</div><div class="sp-btn" onclick="setSection('E')">E</div><div class="sp-btn" onclick="setSection('F')">F</div>
+              </div>
+            </div>
+            <div class="sp-row">
+              <span class="sp-label">West stand</span>
+              <div class="sp-btn-group">
+                <div class="sp-btn" onclick="setSection('G')">G</div><div class="sp-btn" onclick="setSection('H')">H</div><div class="sp-btn" onclick="setSection('I')">I</div>
+              </div>
+            </div>
+            <div class="sp-row">
+              <span class="sp-label">South stand</span>
+              <div class="sp-btn-group">
+                <div class="sp-btn" onclick="setSection('J')">J</div><div class="sp-btn" onclick="setSection('K')">K</div><div class="sp-btn" onclick="setSection('L')">L</div>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Very simple local sort
+      const byWait = type => zones.filter(z => z.type === type).sort((a,b)=>a.wait-b.wait);
+      const cards = [{l:'Best food', z:byWait('food')[0], i:'🍔'}, {l:'Best gate', z:byWait('gate')[0], i:'🚪'}, {l:'Nearest restroom', z:byWait('restroom')[0], i:'🚻'}];
+      
+      nowCards.innerHTML = cards.map(c => {
+        if (!c.z) return '';
+        const fc = forecasts[c.z.id];
+        let tr = '→ stable'; let tc = '';
+        if (fc && fc.trend === 'rising') { tr = '↑ rising'; tc = 'trend-danger'; }
+        if (fc && fc.trend === 'falling') { tr = '↓ easing'; tc = 'trend-accent'; }
+
+        return `
+          <div class="now-card" onclick="sendQuick('Best ${c.l.toLowerCase()} from my section?')">
+            <div class="now-card-left">
+              <div class="now-card-icon">${c.i}</div>
+              <div class="now-card-body">
+                <div class="now-card-label">${c.l}</div>
+                <div class="now-card-name">${c.z.name}</div>
+                <div class="now-card-trend"><span class="${tc}">${tr}</span></div>
+              </div>
+            </div>
+            <div class="now-card-right">
+              <div class="now-card-wait ${getCssColorClass(c.z.wait)}">${c.z.wait}<span class="unit">min</span></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function showOnboarding() {
+      setSection(null);
+    }
+
+    // CHAT ENGINE
+    function formatTime() {
+      const d = new Date();
+      return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+    }
+
+    function addMessage(text, role) {
+      const wrap = document.createElement('div');
+      wrap.className = `msg-${role}-wrap`;
+      
+      const msg = document.createElement('div');
+      msg.className = `msg msg-${role}`;
+      msg.innerHTML = role === 'user' ? escapeHtml(text) : text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      wrap.appendChild(msg);
+
+      const time = document.createElement('div');
+      time.className = 'msg-timestamp';
+      time.textContent = formatTime();
+      wrap.appendChild(time);
+      
+      chatMessages.appendChild(wrap);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showTyping() {
+      const t = document.createElement('div');
+      t.className = 'typing'; t.id = 'typing';
+      t.innerHTML = '<span></span><span></span><span></span>';
+      chatMessages.appendChild(t);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    function hideTyping() { const t = document.getElementById('typing'); if(t) t.remove(); }
+    function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+    /**
+     * Renders zone cards inline after a bot message.
+     * @param {Array} zones - array of zone objects with id, name, wait, capacity
+     * @param {HTMLElement} container - the message container to append to
+     */
+    function renderZoneCards(zones, container) {
+      if(!zones || !zones.length) return;
+      const grid = document.createElement('div');
+      grid.className = 'inline-zones';
+      grid.innerHTML = zones.map(z => `
+        <div class="zone-card" onclick="document.getElementById('chat-input').value='Tell me more about ${z.name}'; document.getElementById('chat-input').focus();">
+          <div class="zone-card-name">${z.name}</div>
+          <div class="zone-card-wait ${getCssColorClass(z.wait)}">${z.wait}<span class="unit">min</span></div>
+          <div class="zone-bar-track">
+            <div class="zone-bar-fill ${getBgColorClass(z.wait)}" style="width:${z.capacity*100}%"></div>
+          </div>
+        </div>
+      `).join('');
+      container.appendChild(grid);
+    }
+
+    function appendSectionPicker(container) {
+      const div = document.createElement('div');
+      div.className = 'section-picker';
+      div.innerHTML = `
+        <div class="sp-title">WHICH STAND ARE YOU IN?</div>
+        <div class="sp-row"><span class="sp-label">North stand</span><div class="sp-btn-group"><div class="sp-btn" onclick="pickSection('A', this)">A</div><div class="sp-btn" onclick="pickSection('B', this)">B</div><div class="sp-btn" onclick="pickSection('C', this)">C</div></div></div>
+        <div class="sp-row"><span class="sp-label">East stand</span><div class="sp-btn-group"><div class="sp-btn" onclick="pickSection('D', this)">D</div><div class="sp-btn" onclick="pickSection('E', this)">E</div><div class="sp-btn" onclick="pickSection('F', this)">F</div></div></div>
+        <div class="sp-row"><span class="sp-label">West stand</span><div class="sp-btn-group"><div class="sp-btn" onclick="pickSection('G', this)">G</div><div class="sp-btn" onclick="pickSection('H', this)">H</div><div class="sp-btn" onclick="pickSection('I', this)">I</div></div></div>
+        <div class="sp-row"><span class="sp-label">South stand</span><div class="sp-btn-group"><div class="sp-btn" onclick="pickSection('J', this)">J</div><div class="sp-btn" onclick="pickSection('K', this)">K</div><div class="sp-btn" onclick="pickSection('L', this)">L</div></div></div>
+      `;
+      container.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    /** @param {string} letter */
+    window.pickSection = function(letter, el) {
+      setSection(letter);
+      const p = el.closest('.section-picker');
+      if(p) p.remove();
+      chatInput.value = `I am in section ${letter}`;
+      handleSend();
+    };
+
+    function fallbackRouting(text) {
+      const l = text.toLowerCase();
+      let best = null;
+      if(l.match(/food|hungry|burger/)) best = currentZones.filter(z=>z.type==='food').sort((a,b)=>a.wait-b.wait)[0];
+      if(l.match(/gate|entry|exit/)) best = currentZones.filter(z=>z.type==='gate').sort((a,b)=>a.wait-b.wait)[0];
+      if(l.match(/restroom|toilet/)) best = currentZones.filter(z=>z.type==='restroom').sort((a,b)=>a.wait-b.wait)[0];
+      
+      let reply = "I can help you find the shortest queues.";
+      let zList = [];
+      let askedForSection = false;
+
+      if(best) {
+        if(!getSection()) {
+          reply = `Globally, **${best.name}** has the shortest wait (${best.wait} min). To give you the nearest option, what section are you standing in?`;
+          askedForSection = true;
+        } else {
+          reply = `From Section ${getSection()}, **${best.name}** is your best option.`;
+          zList = [best];
+        }
+      }
+      return { reply, zones: zList, askedForSection };
+    }
+
+    async function handleSend() {
+      const text = chatInput.value.trim();
+      if (!text || isThinking) return;
+
+      chatInput.value = ''; chatInput.style.height = '42px';
+      isThinking = true; sendBtn.disabled = true;
+
+      addMessage(text, 'user');
+      conversationHistory.push({ role: 'user', text });
+      showTyping();
+
+      let rObj = { reply: '', zones: [], askedForSection: false };
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/chat`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, history: conversationHistory })
+        });
+        if(res.ok) rObj = await res.json();
+        else throw new Error("API fail");
+      } catch {
+        rObj = fallbackRouting(text);
+      }
+
+      hideTyping();
+      addMessage(rObj.reply, 'bot');
+      conversationHistory.push({ role: 'model', text: rObj.reply });
+
+      const lastWrap = chatMessages.lastElementChild;
+      if (rObj.zones && rObj.zones.length > 0) {
+        renderZoneCards(rObj.zones.slice(0,4), lastWrap);
+      }
+      if (rObj.askedForSection) {
+        appendSectionPicker(lastWrap);
+      }
+
+      isThinking = false; sendBtn.disabled = false;
+      chatInput.focus();
+    }
+
+    sendBtn.addEventListener('click', handleSend);
+    chatInput.addEventListener('keydown', e => {
+      if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+    });
+    chatInput.addEventListener('input', () => {
+      chatInput.style.height = '42px';
+      chatInput.style.height = Math.min(chatInput.scrollHeight, 100) + 'px';
+    });
+
+    function renderZoneGrid(zones, container) {
+      if(!container) return;
+      container.innerHTML = zones.map(z => `
+        <div class="zone-card">
+          <div class="zone-card-name">${z.name}</div>
+          <div class="zone-card-wait ${getCssColorClass(z.wait)}">${z.wait}<span class="unit">min</span></div>
+          <div class="zone-bar-track">
+            <div class="zone-bar-fill ${getBgColorClass(z.wait)}" style="width:${Math.round(z.capacity*100)}%"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function flashZones() {
+      document.querySelectorAll('.zone-card').forEach(c => {
+        c.classList.remove('flash');
+        void c.offsetWidth;
+        c.classList.add('flash');
+      });
+    }
+
+    // ALERTS
+    function renderAlerts(alerts) {
+      if(!alerts.length) {
+        alertsList.innerHTML = `<div class="empty-state">No active alerts.</div>`;
+        return;
+      }
+      alertsList.innerHTML = alerts.map(a => {
+        let cls = 'alert-info';
+        if(a.type==='urgent') cls = 'alert-urgent';
+        if(a.type==='exit') cls = 'alert-exit';
+        
+        const diff = Math.round((Date.now() - (a.timestamp||a.time||Date.now())) / 60000);
+        let ts = diff < 1 ? 'just now' : diff < 60 ? `${diff}m ago` : `${Math.round(diff/60)}h ago`;
+
+        return `
+          <div class="alert-card ${cls}" role="alert">
+            <div class="alert-icon">${a.icon||'ℹ️'}</div>
+            <div class="alert-content">
+              <div class="alert-title">${escapeHtml(a.title)}</div>
+              <div class="alert-body">${escapeHtml(a.body)}</div>
+              <div class="alert-time">${ts}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // GROUP
+    let meetupCode = null;
+    let myMeetupName = null;
+    
+    window.createMeetup = async function() {
+      const name = document.getElementById('meetup-name').value.trim();
+      if (!name) return;
+      myMeetupName = name;
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/meetup`, {
+          method: 'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({creatorName:name, section:getSection()})
+        });
+        const d = await res.json();
+        meetupCode = d.code;
+        showSession(d.code);
+      } catch {}
+    };
+
+    window.joinMeetup = async function() {
+      const code = document.getElementById('meetup-join-code').value.trim().toUpperCase();
+      const name = document.getElementById('meetup-name').value.trim() || 'Guest';
+      if(!code) return;
+      myMeetupName = name;
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/meetup/${code}/join`, {
+          method: 'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name, section:getSection()})
+        });
+        if(res.ok) { meetupCode = code; showSession(code); }
+      } catch {}
+    };
+
+    window.leaveMeetup = function() {
+      if(meetupCode) fetch(`${BACKEND_URL}/api/meetup/${meetupCode}/leave`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:myMeetupName})}).catch(()=>{});
+      meetupCode = null; myMeetupName = null; currentMeetupMembers = [];
+      document.getElementById('meetup-active').style.display='none';
+      document.getElementById('meetup-create').style.display='block';
+      if(activeTab==='map') drawMap(currentZones);
+    };
+
+    function showSession(code) {
+      document.getElementById('meetup-create').style.display='none';
+      document.getElementById('meetup-active').style.display='block';
+      document.getElementById('meetup-code-display').textContent = code;
+      if(socket) { socket.emit('meetup:join',code); socket.on('meetup:updated',renderMembers); }
+    }
+    
+    let currentMeetupMembers = [];
+    function renderMembers(mems) {
+      currentMeetupMembers = mems;
+      if(activeTab==='map') drawMap(currentZones);
+      document.getElementById('meetup-members').innerHTML = mems.map(m => `
+        <div class="member-item">
+          <div class="member-avatar">${m.name[0].toUpperCase()}</div>
+          <div class="member-name">${escapeHtml(m.name)}</div>
+          ${m.section ? `<div class="member-badge">Sec ${m.section}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    // MAP
+    function drawMap(zones) {
+      const c = document.getElementById('venue-map');
+      if(!c) return;
+      const ctx = c.getContext('2d');
+      const p = c.parentElement;
+      const w = p.clientWidth; const h = Math.max(p.clientHeight, 300);
+      c.width = w; c.height = h;
+      
+      const cx = w/2, cy = h/2;
+      ctx.clearRect(0,0,w,h);
+      
+      // grid
+      ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+      for(let x=0;x<w;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+      for(let y=0;y<h;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+
+      const rx = w*0.3, ry = h*0.35;
+      
+      ctx.beginPath(); ctx.ellipse(cx,cy,rx*1.2,ry*1.2,0,0,Math.PI*2);
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth=10; ctx.stroke();
+      
+      ctx.beginPath(); ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);
+      ctx.fillStyle = '#0f1018'; ctx.fill();
+      ctx.strokeStyle = 'rgba(57,217,138,0.2)'; ctx.lineWidth=1; ctx.stroke();
+
+      // Zones
+      const pos = {
+        'north-gate':{x:cx,y:cy-h*0.15},'south-gate':{x:cx,y:cy+h*0.15},
+        'east-food':{x:cx+w*0.3,y:cy},'west-food':{x:cx-w*0.3,y:cy},
+        'north-rest':{x:cx+w*0.2,y:cy-h*0.3},'south-rest':{x:cx-w*0.2,y:cy+h*0.3},
+        'vip-entry':{x:cx+w*0.2,y:cy+h*0.3},'main-bar':{x:cx-w*0.2,y:cy-h*0.3}
+      };
+      
+      zones.forEach(z => {
+        const p = pos[z.id] || {x:cx,y:cy};
+        const r = h*(0.08+z.capacity*0.06);
+        let col = z.wait<=5 ? [57,217,138] : z.wait<=15 ? [245,166,35] : [242,100,100];
+        
+        const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r);
+        grad.addColorStop(0, `rgba(${col[0]},${col[1]},${col[2]},0.4)`);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
+        ctx.fillStyle = grad; ctx.fill();
+        
+        ctx.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},1)`;
+        ctx.font = "700 11px 'Space Mono'"; ctx.textAlign='center';
+        ctx.fillText(z.wait+'m', p.x, p.y+4);
+      });
+    }
+
+    window.addEventListener('resize', () => { if(activeTab==='map') drawMap(currentZones); });
+
+    function mockTick() {
+      if(backendConnected) return;
+      currentZones = currentZones.map(z => ({...z, capacity: Math.max(0.1, z.capacity+(Math.random()-0.5)*0.1)}));
+      currentZones.forEach(z => z.wait = Math.round(z.capacity*20));
+      renderZoneGrid(currentZones, document.getElementById('map-zone-cards'));
+      renderNowTab(currentZones, getSection(), currentForecasts);
+      if(activeTab==='map') drawMap(currentZones);
+      flashZones();
+    }
+
+    (async function boot() {
+      initSocket();
+      await loadInitialData();
+      setInterval(mockTick, 10000);
+      switchTab('now');
+    })();
+
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  </script>
+</body>
+</html>
