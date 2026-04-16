@@ -438,6 +438,7 @@
       min-height: 40px;
       display: flex;
       align-items: center;
+      flex-shrink: 0;
       transition: border-color 0.18s, background 0.18s, color 0.18s;
     }
     .qr:hover {
@@ -888,6 +889,16 @@
         handleSend();
       }
     });
+
+    const qrContainer = document.getElementById('quick-replies');
+    if (qrContainer) {
+      qrContainer.addEventListener('wheel', (e) => {
+        if (e.deltaY !== 0) {
+          e.preventDefault();
+          qrContainer.scrollLeft += e.deltaY;
+        }
+      });
+    }
 
     /**
      * @param {number} wait
