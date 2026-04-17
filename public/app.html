@@ -1219,14 +1219,28 @@
     function fallbackRouting(text) {
       const l = text.toLowerCase();
       let best = null;
-      if(l.match(/food|hungry|burger|pizza|snack|eat/)) best = currentZones.filter(z=>z.type==='food').sort((a,b)=>a.wait-b.wait)[0];
-      if(l.match(/gate|entry|exit|way out|leave|door/)) best = currentZones.filter(z=>z.type==='gate').sort((a,b)=>a.wait-b.wait)[0];
-      if(l.match(/restroom|toilet|bathroom|loo|wc|washroom/)) best = currentZones.filter(z=>z.type==='restroom').sort((a,b)=>a.wait-b.wait)[0];
-      
       let reply = "I can help you find the shortest queues.";
       let zList = [];
       let askedForSection = false;
 
+      if(l.match(/parks?|parking|cars?|vehicles?|lots?|drives?|ubers?|taxis?|rides?/)) {
+        return { reply: "Post-game: head to **Lot A or D** — space available. Lot C is nearly full. Leave 10 min before the final whistle to beat the rush. 🚗", zones: [], askedForSection: false };
+      }
+      if(l.match(/seats?|sections?|rows?|blocks?|finds?|where am i/)) {
+        return { reply: "Match your section letter to the nearest gate: **A–C → North**, **D–F → East**, **G–J → South**. Check signage at any concourse entry. 📍", zones: [], askedForSection: false };
+      }
+      if(l.match(/busy|crowd|crowds|packed|full|congestion|capacity|overview/)) {
+        const sorted = [...currentZones].sort((a, b) => b.capacity - a.capacity);
+        return { reply: `Most congested: **${sorted[0].name}** at ${Math.round(sorted[0].capacity * 100)}%. Quietest: **${sorted[sorted.length - 1].name}** at ${Math.round(sorted[sorted.length - 1].capacity * 100)}%. 📊`, zones: [], askedForSection: false };
+      }
+      if(l.match(/help|what can you|how do|menus?|options?/)) {
+        return { reply: "I can help with: **food queue** wait times, **gate** congestion, **restroom** locations, **parking** tips, and **seat finding**. Just ask! 🎯", zones: [], askedForSection: false };
+      }
+
+      if(l.match(/food|hungry|burger|pizza|snack|eat/)) best = currentZones.filter(z=>z.type==='food').sort((a,b)=>a.wait-b.wait)[0];
+      else if(l.match(/gate|entry|exit|way out|leave|door/)) best = currentZones.filter(z=>z.type==='gate').sort((a,b)=>a.wait-b.wait)[0];
+      else if(l.match(/restroom|toilet|bathroom|loo|wc|washroom/)) best = currentZones.filter(z=>z.type==='restroom').sort((a,b)=>a.wait-b.wait)[0];
+      
       if(best) {
         if(!getSection()) {
           reply = `Globally, **${best.name}** has the shortest wait (${best.wait} min). To give you the nearest option, what section are you standing in?`;
