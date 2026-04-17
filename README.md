@@ -134,6 +134,38 @@ At-a-glance view showing the **best food, gate, and restroom** for your section 
 
 ---
 
+## 🏟️ The Data: Live Mock Architecture
+
+Because live stadium security and crowd-sensing APIs are highly proprietary, VenueIQ is built around a **Live Mock Data Engine** specifically configured for **Wembley Stadium**. This ensures the app can be fully demonstrated with realistic, breathing data during the judging parameters.
+
+### WHY we use mock data
+To demonstrate the absolute power of Gemini AI when paired with real-time sensor ingestion, we needed a live stream of changing variables. Static data makes the AI look like a simple lookup table. By feeding it fluctuating pseudo-random "live" data, the AI has to dynamically reason about changing conditions (e.g., "North Gate is full *now*, go East instead") exactly as it would in a real stadium.
+
+### WHAT is being mocked
+We successfully modeled 8 critical zones of Wembley Stadium:
+- **Gates:** North Gate, South Gate
+- **Food/Beverage:** West Food Court, East Food Court, Main Bar L2, Terrace Bar
+- **Facilities:** Restrooms North, Restrooms South
+
+For each zone, we track:
+- `capacity`: A fluid percentage (0-100%) indicating how crowded the physical space is.
+- `wait`: The calculated physical wait time in minutes, mapped logarithmically to the capacity.
+- `trend`: Is the crowd rising, falling, or stable?
+
+### HOW it works
+The backend runs a headless Node.js `heatmapScheduler`. Every 2 minutes, this scheduler:
+1. Calculates a "drift" for each zone (crowds randomly surge or disperse based on realistic constraints).
+2. Updates the capacity and wait times.
+3. Automatically writes the fresh data to the **Firebase Realtime Database**.
+4. Pushes the new state directly to all connected mobile clients over a **Socket.IO** WebSocket connection.
+
+### WHERE the data lives
+- **Primary Datastore:** Firebase Realtime Database. This acts as our "sensor hub".
+- **AI Context Window:** Every time a user asks a question, the backend fetches the latest Firebase snapshot and invisibly attaches it to the prompt sent to `Gemini 1.5 Flash`.
+- **Offline Fallback Engine:** If Firebase or the API disconnects, the frontend's Service Worker intercepts queries and uses a hardcoded local fallback map containing realistic baseline heuristics for Wembley, ensuring zero downtime for the fan.
+
+---
+
 ## Backend Routes
 
 | Method | Endpoint | Description |
