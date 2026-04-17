@@ -201,6 +201,29 @@ The backend runs a headless Node.js `heatmapScheduler`. Every 2 minutes, this sc
 | **Gemini 2.0 Flash** | Conversational AI with zone + section context; proactive alert generation | Fast inference, structured output, 1M context window |
 | **Firebase Realtime Database** | Live zone data, alerts, crowd reports, group sessions | Low-latency sync, serverless scaling, free tier |
 | **Firebase Admin SDK** | Server-side DB reads/writes from Express | Secure credential management, no client-side keys |
+| **Google Cloud Run** | Containerized backend deployment | Auto-scaling, WebSocket support, session affinity |
+| **Google Cloud Build** | Automated CI/CD pipeline | Test → Build → Deploy on every push |
+| **Google Analytics 4** | Frontend usage telemetry via gtag.js | Page views, tab switches, chat interactions |
+
+> 📖 **For detailed integration documentation, see [GOOGLE_SERVICES.md](GOOGLE_SERVICES.md)**
+
+---
+
+## Deployment
+
+### Frontend (Vercel)
+The `public/` directory is deployed as a static site on Vercel with CDN edge caching.
+
+### Backend (Google Cloud Run / Render)
+The backend is containerized via the included `Dockerfile` and deployed with:
+- **Session affinity** enabled for Socket.IO WebSocket persistence
+- **Auto-scaling** from 0 to 10 instances based on traffic
+- **CI/CD** via `cloudbuild.yaml` for automated test → build → deploy
+
+```bash
+# Deploy to Cloud Run
+gcloud run deploy venueiq-backend --source . --region asia-south1 --allow-unauthenticated --session-affinity
+```
 
 ---
 
