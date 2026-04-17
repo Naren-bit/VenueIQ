@@ -9,6 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>VenueIQ — Smart Stadium Companion</title>
   <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
@@ -582,6 +583,66 @@
     .group-btn:hover { border-color: var(--accent); color: var(--accent); }
     
     .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+
+    /* SIMULATION & EXTERNAL MAP */
+    .sim-btn {
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-family: var(--mono);
+      font-weight: 700;
+      cursor: pointer;
+      animation: pulse-danger 2s infinite;
+    }
+    @keyframes pulse-danger { 0% { box-shadow: 0 0 0 0 rgba(242,100,100,0.4); } 70% { box-shadow: 0 0 0 6px rgba(242,100,100,0); } 100% { box-shadow: 0 0 0 0 rgba(242,100,100,0); } }
+
+    .map-controls {
+      display: flex;
+      padding: 10px 16px;
+      gap: 10px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+    .map-toggle {
+      flex: 1;
+      height: 32px;
+      border-radius: 6px;
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .map-toggle.active { background: rgba(57,217,138,0.1); color: var(--accent); border-color: var(--accent); }
+
+    .map-external-wrap {
+      flex: 1;
+      display: none;
+      width: 100%;
+      background: var(--surface);
+    }
+    .map-external-wrap.active { display: block; }
+    .map-canvas-wrap.hidden { display: none; }
+
+    /* INTENT FRAMING */
+    .intent-grid { display: flex; flex-direction: column; gap: 12px; padding: 0 20px; }
+    .intent-card {
+      background: linear-gradient(145deg, var(--surface2), var(--surface3));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex; align-items: center; gap: 16px;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .intent-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .intent-emoji { font-size: 28px; }
+    .intent-text { font-size: 16px; font-weight: 600; color: var(--text); }
   </style>
 </head>
 <body>
@@ -593,6 +654,7 @@
         <div class="header-logo"><span style="color:var(--text)">Venue</span><span>IQ</span></div>
       </a>
       <div class="header-right">
+        <button class="sim-btn" onclick="triggerSimulation()" id="sim-btn" aria-label="Simulate Halftime">MIN 43</button>
         <div class="pill ws-pill" id="ws-indicator" aria-label="WebSocket status">WS &nbsp;&nbsp;&nbsp;</div>
         <div class="pill live-pill" id="live-indicator"><div class="live-dot" id="status-dot"></div><span id="status-text">LIVE</span></div>
       </div>
@@ -650,13 +712,20 @@
 
       <!-- MAP VIEW -->
       <section class="panel" id="view-map" role="tabpanel" aria-labelledby="view-map">
-        <div class="map-canvas-wrap">
+        <div class="map-controls">
+          <button class="map-toggle active" id="toggle-internal" onclick="setMapMode('internal')">LIVE HEATMAP</button>
+          <button class="map-toggle" id="toggle-external" onclick="setMapMode('external')">TRANSIT MAP</button>
+        </div>
+        <div class="map-canvas-wrap" id="map-internal">
           <canvas id="venue-map"></canvas>
           <div class="map-legend">
             <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Low wait</div>
             <div class="legend-item"><div class="legend-dot" style="background:var(--warn)"></div> Moderate</div>
             <div class="legend-item"><div class="legend-dot" style="background:var(--danger)"></div> High</div>
           </div>
+        </div>
+        <div class="map-external-wrap" id="map-external">
+          <div id="leaflet-map" style="width: 100%; height: 100%; z-index: 1;"></div>
         </div>
         <div class="map-zones" id="map-zone-cards"></div>
       </section>
@@ -697,6 +766,7 @@
   </div>
 
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
     /** @type {string} */
     const BACKEND_URL = window.location.hostname === 'localhost' ? 'http://localhost:3001' : window.location.origin;
@@ -739,6 +809,54 @@
     const statusText = document.getElementById('status-text');
     const wsIndicator = document.getElementById('ws-indicator');
     
+    // INTENT FRAMING
+    window.tempIntent = null;
+    window.setIntent = function(intent) {
+      window.tempIntent = intent;
+      renderNowTab(currentZones, userSection, currentForecasts);
+    };
+
+    // MAP MODES
+    let leafletMap = null;
+    window.setMapMode = function(mode) {
+      document.getElementById('toggle-internal').classList.toggle('active', mode === 'internal');
+      document.getElementById('toggle-external').classList.toggle('active', mode === 'external');
+      
+      document.getElementById('map-internal').classList.toggle('hidden', mode === 'external');
+      document.getElementById('map-external').classList.toggle('active', mode === 'external');
+      
+      if (mode === 'external') {
+        if (!leafletMap) {
+          // Default to Wembley Stadium coords
+          leafletMap = L.map('leaflet-map').setView([51.5560, -0.2795], 15);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '&copy; OpenStreetMap contributors'
+          }).addTo(leafletMap);
+          L.marker([51.5560, -0.2795]).addTo(leafletMap).bindPopup('Stadium').openPopup();
+        } else {
+          leafletMap.invalidateSize();
+        }
+      } else {
+        setTimeout(() => drawMap(currentZones), 50);
+      }
+    };
+
+    // SIMULATION
+    window.triggerSimulation = async function() {
+      const btn = document.getElementById('sim-btn');
+      btn.style.opacity = '0.5'; btn.textContent = 'DEPLOYING...';
+      try {
+        await fetch(`${BACKEND_URL}/api/simulate`, { method: 'POST' });
+        btn.textContent = 'SIMULATED';
+        btn.style.background = 'var(--accent)';
+        btn.style.animation = 'none';
+        setTimeout(() => { btn.style.display = 'none'; }, 3000);
+      } catch (e) {
+        console.error(e);
+        btn.style.opacity = '1'; btn.textContent = 'MIN 43';
+      }
+    };
+
     function getSection() { return userSection; }
     function setSection(section) {
       userSection = section;
@@ -932,9 +1050,21 @@
       const nowCards = document.getElementById('now-cards');
       if (!nowCards) return;
       if (!section) {
+        if (!window.tempIntent) {
+          nowCards.innerHTML = `
+            <div style="font-family:var(--sans); font-size:18px; font-weight:600; text-align:center; margin:10px 0 20px;">What's your goal right now?</div>
+            <div class="intent-grid">
+              <div class="intent-card" onclick="setIntent('food')"><div class="intent-emoji">🍔</div><div class="intent-text">Get food fast</div></div>
+              <div class="intent-card" onclick="setIntent('exit')"><div class="intent-emoji">🚪</div><div class="intent-text">Best way out</div></div>
+              <div class="intent-card" onclick="setIntent('seat')"><div class="intent-emoji">🚶</div><div class="intent-text">Find my seat</div></div>
+            </div>
+          `;
+          return;
+        }
+
         nowCards.innerHTML = `
           <div class="section-picker">
-            <div class="sp-title">Which stand are you in?</div>
+            <div class="sp-title">Where are you currently sitting?</div>
             <div class="sp-row">
               <span class="sp-label">North stand</span>
               <div class="sp-btn-group">
@@ -962,6 +1092,17 @@
           </div>
         `;
         return;
+      }
+
+      // If intent exists and section is set, auto-resolve it
+      if (window.tempIntent) {
+        const intent = window.tempIntent;
+        window.tempIntent = null; // reset before firing to avoid loops
+        switchTab('chat');
+        if (intent === 'food') chatInput.value = `Where is the shortest food queue from section ${section}?`;
+        else if (intent === 'exit') chatInput.value = `What is the best way out from section ${section}?`;
+        else if (intent === 'seat') chatInput.value = `How do I get to my seat in section ${section}?`;
+        setTimeout(handleSend, 100);
       }
 
       // Very simple local sort
@@ -1079,9 +1220,9 @@
     function fallbackRouting(text) {
       const l = text.toLowerCase();
       let best = null;
-      if(l.match(/food|hungry|burger/)) best = currentZones.filter(z=>z.type==='food').sort((a,b)=>a.wait-b.wait)[0];
-      if(l.match(/gate|entry|exit/)) best = currentZones.filter(z=>z.type==='gate').sort((a,b)=>a.wait-b.wait)[0];
-      if(l.match(/restroom|toilet/)) best = currentZones.filter(z=>z.type==='restroom').sort((a,b)=>a.wait-b.wait)[0];
+      if(l.match(/food|hungry|burger|pizza|snack|eat/)) best = currentZones.filter(z=>z.type==='food').sort((a,b)=>a.wait-b.wait)[0];
+      if(l.match(/gate|entry|exit|way out|leave|door/)) best = currentZones.filter(z=>z.type==='gate').sort((a,b)=>a.wait-b.wait)[0];
+      if(l.match(/restroom|toilet|bathroom|loo|wc|washroom/)) best = currentZones.filter(z=>z.type==='restroom').sort((a,b)=>a.wait-b.wait)[0];
       
       let reply = "I can help you find the shortest queues.";
       let zList = [];

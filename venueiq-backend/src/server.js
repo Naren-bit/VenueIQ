@@ -15,6 +15,7 @@ const alertsRouter    = require('./routes/alerts');
 const reportsRouter   = require('./routes/reports');
 const meetupRouter    = require('./routes/meetup');
 const dashboardRouter = require('./routes/dashboard');
+const simulateRouter  = require('./routes/simulate');
 
 const { startHeatmapScheduler } = require('./services/heatmapScheduler');
 const { startAlertScheduler }   = require('./services/alertScheduler');
@@ -65,6 +66,7 @@ app.use('/api/alerts',    alertsRouter);
 app.use('/api/reports',   reportsRouter);
 app.use('/api/meetup',    meetupRouter);
 app.use('/api/dashboard', dashboardRouter);
+app.use('/api/simulate',  simulateRouter);
 
 // Health check endpoint
 app.get('/health', (req, res) => res.json({

@@ -39,16 +39,42 @@ router.post('/', async (req, res, next) => {
     let forecasts = {};
     try { forecasts = await getAllForecasts(zones); } catch { /* non-critical */ }
 
-    let reply;
+    let replyText = '';
+    let matchedZones = [];
+    let askedForSection = false;
+
     try {
-      reply = await chat(trimmedMessage, zones, history, section, forecasts);
+      replyText = await chat(trimmedMessage, zones, history, section, forecasts);
     } catch (err) {
       console.warn('[Chat] Gemini unavailable, using local fallback:', err.message);
-      reply = localFallback(trimmedMessage, zones, history, section);
+      const fb = localFallback(trimmedMessage, zones, history, section);
+      
+      // localFallback can return strings or objects now.
+      if (typeof fb === 'string') {
+        replyText = fb;
+      } else {
+        replyText = fb.reply;
+        matchedZones = fb.zones || [];
+        askedForSection = fb.askedForSection || false;
+      }
+    }
+
+    // Attempt to extract zones from the generated text if missing
+    if (matchedZones.length === 0 && replyText && typeof replyText === 'string') {
+      zones.forEach(z => {
+        // Simple case-insensitive name match
+        if (replyText.toLowerCase().includes(z.name.toLowerCase())) {
+          matchedZones.push(z);
+        }
+      });
+      // Sort to best wait
+      matchedZones.sort((a,b) => a.wait - b.wait);
     }
 
     res.json({
-      reply,
+      reply: replyText,
+      zones: matchedZones,
+      askedForSection,
       timestamp: Date.now()
     });
   } catch (err) {

@@ -24,21 +24,21 @@ function getClient() {
  */
 function extractSectionFromChat(history) {
   for (let i = history.length - 1; i >= 0; i--) {
-     if (history[i].role === 'user') {
-       const text = history[i].text.trim();
-       // "section X", "sec X", "stand X"
-       const m = text.match(/(?:section|sec|stand)\s+([a-zA-Z0-9]+)/i);
-       if (m) return m[1];
-       // explicit quadrants
-       const q = text.match(/\b(north|south|east|west)\b/i);
-       if (q) return q[1];
-       // bare section letter (A-L), only when the message is very short (≤ 3 chars)
-       // This handles replies like "C", "B", "E4" to "what section are you in?"
-       if (text.length <= 3) {
-         const bare = text.match(/^([A-La-l]\d{0,2})$/);
-         if (bare) return bare[1];
-       }
-     }
+    if (history[i].role === 'user') {
+      const text = history[i].text.trim();
+      // "section X", "sec X", "stand X"
+      const m = text.match(/(?:section|sec|stand)\s+([a-zA-Z0-9]+)/i);
+      if (m) return m[1];
+      // explicit quadrants
+      const q = text.match(/\b(north|south|east|west)\b/i);
+      if (q) return q[1];
+      // bare section letter (A-L), only when the message is very short (≤ 3 chars)
+      // This handles replies like "C", "B", "E4" to "what section are you in?"
+      if (text.length <= 3) {
+        const bare = text.match(/^([A-La-l]\d{0,2})$/);
+        if (bare) return bare[1];
+      }
+    }
   }
   return null;
 }
@@ -83,7 +83,7 @@ async function chat(userMessage, zones = [], history = [], userSection = null, f
   let pastHistory = history.length > 0 && history[history.length - 1].role === 'user'
     ? history.slice(0, -1)
     : history;
-    
+
   pastHistory = pastHistory.slice(-12);
   while (pastHistory.length > 0 && pastHistory[0].role !== 'user') {
     pastHistory.shift();
@@ -141,8 +141,8 @@ function localFallback(message, zones, history = [], explicitSection = null) {
   // If the message contains no explicit intent keywords, but does contain a location,
   // scan history for the most recent intent keyword to reply to the pending question.
   let activeText = m;
-  const intentRegex = /\b(foods?|eats?|queues?|concessions?|drinks?|hungry|burgers?|snacks?|pizzas?|gates?|enters?|entrances?|exits?|doors?|leaves?|restrooms?|toilets?|bathrooms?|loos?|washrooms?|wcs?|parks?|parking|cars?|vehicles?|lots?|drives?|ubers?|taxis?|rides?|seats?|sections?|rows?|blocks?|finds?|where am i|busy|crowds?|packed|full|congestion|capacity|overview|help|options?)\b/i;
-  
+  const intentRegex = /\b(foods?|eats?|queues?|concessions?|drinks?|hungry|burgers?|snacks?|pizzas?|gates?|way outs?|enters?|entrances?|exits?|doors?|leaves?|restrooms?|toilets?|bathrooms?|loos?|washrooms?|wcs?|parks?|parking|cars?|vehicles?|lots?|drives?|ubers?|taxis?|rides?|seats?|sections?|rows?|blocks?|finds?|where am i|busy|crowds?|packed|full|congestion|capacity|overview|help|options?)\b/i;
+
   if (!m.match(intentRegex) && userSection) {
     for (let i = fullHistory.length - 1; i >= 0; i--) {
       if (fullHistory[i].role === 'user' && fullHistory[i].text.match(intentRegex)) {
@@ -153,7 +153,9 @@ function localFallback(message, zones, history = [], explicitSection = null) {
   }
 
   const newlySetSection = extractSectionFromChat([{ role: 'user', text: message }]);
-  if (newlySetSection && !activeText.match(/\b(foods?|eats?|queues?|gates?|exits?|doors?|restrooms?|toilets?|parks?|parking|finds?|where am i)\b/i)) {
+  const actionableIntentRegex = /\b(foods?|eats?|queues?|concessions?|drinks?|hungry|burgers?|snacks?|pizzas?|gates?|way outs?|enters?|entrances?|exits?|doors?|leaves?|restrooms?|toilets?|bathrooms?|loos?|washrooms?|wcs?|parks?|parking|cars?|vehicles?|lots?|drives?|ubers?|taxis?|rides?|finds?|where am i)\b/i;
+
+  if (newlySetSection && !activeText.match(actionableIntentRegex)) {
     return `Got it! You're in the **${newlySetSection.toUpperCase()}** stand. Would you like to know the nearest food, gate, or restroom? 📍`;
   }
 
