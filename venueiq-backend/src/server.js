@@ -1,6 +1,32 @@
-// src/server.js
+/**
+ * @fileoverview VenueIQ Express server entry point.
+ * Initialises middleware, API routes, Socket.IO WebSocket server,
+ * and background schedulers for crowd intelligence.
+ * @module server
+ */
+
+/**
+ * VenueIQ addresses the PromptWars challenge:
+ * "Design a solution that improves the physical event experience for attendees
+ * at large-scale sporting venues. The system should address challenges such as
+ * crowd movement, waiting times, and real-time coordination."
+ *
+ * Architecture decision: persistent Express + Socket.IO server (not serverless)
+ * is essential for WebSocket connections and scheduled crowd analysis — things
+ * that Cloud Functions cannot sustain for real-time stadium operations.
+ */
 
 require('dotenv').config();
+
+// ===== Validate required environment variables on startup =====
+const REQUIRED_ENV = ['GEMINI_API_KEY', 'FIREBASE_DATABASE_URL'];
+const missing = REQUIRED_ENV.filter(key => !process.env[key]);
+if (missing.length > 0) {
+  console.error(`[Boot] Missing required environment variables: ${missing.join(', ')}`);
+  console.error('[Boot] Copy .env.example to .env and fill in your values.');
+  process.exit(1);
+}
+
 const path = require('path');
 const express    = require('express');
 const cors       = require('cors');
@@ -22,6 +48,8 @@ const { startAlertScheduler }   = require('./services/alertScheduler');
 const { initFirebase }          = require('./services/firebase');
 const { errorHandler }          = require('./middleware/errorHandler');
 const { requestLogger }         = require('./middleware/requestLogger');
+const { requestId }             = require('./middleware/requestId');
+const { sanitizeBody }          = require('./middleware/sanitize');
 
 // ===== Express App =====
 const app        = express();
@@ -46,9 +74,45 @@ io.on('connection', (socket) => {
 });
 
 // ===== Middleware =====
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(requestId);
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [
+        "'self'",
+        'https://www.gstatic.com',
+        'https://www.googletagmanager.com',
+        'https://maps.googleapis.com',
+        'https://cdnjs.cloudflare.com',
+        'https://unpkg.com',
+        "'unsafe-inline'",
+      ],
+      connectSrc: [
+        "'self'",
+        'https://*.firebaseio.com',
+        'wss://*.firebaseio.com',
+        'https://generativelanguage.googleapis.com',
+        'https://maps.googleapis.com',
+        'https://www.google-analytics.com',
+        'https://www.googletagmanager.com',
+      ],
+      imgSrc: ["'self'", 'data:', 'https://maps.gstatic.com', 'https://*.googleapis.com', 'https://*.openstreetmap.org'],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+      styleSrc: ["'self'", 'https://fonts.googleapis.com', 'https://unpkg.com', "'unsafe-inline'"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    }
+  },
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  permittedCrossDomainPolicies: false,
+  crossOriginEmbedderPolicy: false, // needed for Google Maps tiles
+}));
 app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
 app.use(express.json({ limit: '50kb' }));
+app.use(sanitizeBody);
 app.use(requestLogger);
 
 // Rate limiting
@@ -92,6 +156,12 @@ app.get('*', (req, res) => {
 // ===== Boot Sequence =====
 const PORT = process.env.PORT || 3001;
 
+/**
+ * Boot the server: initialize Firebase, start schedulers, listen on PORT.
+ *
+ * @returns {Promise<void>}
+ * @throws {Error} if Firebase initialization fails
+ */
 async function boot() {
   try {
     await initFirebase();

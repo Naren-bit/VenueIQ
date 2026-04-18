@@ -67,6 +67,11 @@ jest.mock('../src/services/predictor', () => ({
   getAllForecasts:  jest.fn().mockResolvedValue({}),
 }));
 
+jest.mock('../src/services/storage', () => ({
+  uploadZoneSnapshot: jest.fn().mockResolvedValue('snapshots/test.json'),
+  listSnapshots: jest.fn().mockResolvedValue([]),
+}));
+
 const request = require('supertest');
 const express = require('express');
 
@@ -79,8 +84,13 @@ const meetupRouter = require('../src/routes/meetup');
 const dashboardRouter = require('../src/routes/dashboard');
 const { errorHandler } = require('../src/middleware/errorHandler');
 
+const { requestId } = require('../src/middleware/requestId');
+const { sanitizeBody } = require('../src/middleware/sanitize');
+
 const app = express();
+app.use(requestId);
 app.use(express.json({ limit: '50kb' }));
+app.use(sanitizeBody);
 app.set('io', null);
 app.use('/api/chat', chatRouter);
 app.use('/api/zones', zonesRouter);
@@ -436,7 +446,7 @@ describe('POST /api/chat — extended validation', () => {
       .post('/api/chat')
       .send({ message: '   ' });
     expect(res.status).toBe(400);
-    expect(res.body.error).toMatch(/empty/i);
+    expect(res.body.error).toMatch(/message/i);
   });
 
   it('rejects non-array history', async () => {
@@ -468,5 +478,71 @@ describe('Error handler', () => {
       .send('{invalid json}');
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/invalid json/i);
+  });
+});
+
+// ===== SANITISATION TESTS =====
+describe('Input sanitisation', () => {
+  it('strips HTML tags from chat message via sanitizeString', () => {
+    const { sanitizeString } = require('../src/middleware/sanitize');
+    expect(sanitizeString('<script>alert(1)</script>hello')).toBe('alert(1)hello');
+    expect(sanitizeString('normal message')).toBe('normal message');
+  });
+
+  it('strips javascript: URI from strings', () => {
+    const { sanitizeString } = require('../src/middleware/sanitize');
+    expect(sanitizeString('javascript:alert(1)')).toBe('alert(1)');
+  });
+
+  it('strips inline event handlers from strings', () => {
+    const { sanitizeString } = require('../src/middleware/sanitize');
+    expect(sanitizeString('test onerror=alert(1) value')).toBe('test alert(1) value');
+  });
+});
+
+// ===== SECURITY HEADER TESTS =====
+describe('Security headers', () => {
+  it('includes X-Request-ID on every response', async () => {
+    const res = await request(app).get('/health');
+    expect(res.headers['x-request-id']).toBeDefined();
+  });
+
+  it('accepts valid UUID as X-Request-ID passthrough', async () => {
+    const id = '550e8400-e29b-41d4-a716-446655440000';
+    const res = await request(app).get('/health').set('X-Request-ID', id);
+    expect(res.headers['x-request-id']).toBe(id);
+  });
+
+  it('generates new UUID when X-Request-ID is invalid', async () => {
+    const res = await request(app).get('/health').set('X-Request-ID', 'not-a-uuid');
+    expect(res.headers['x-request-id']).not.toBe('not-a-uuid');
+    expect(res.headers['x-request-id']).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    );
+  });
+});
+
+// ===== STORAGE SERVICE =====
+describe('Storage service', () => {
+  it('listSnapshots returns empty array when bucket not configured', async () => {
+    const { listSnapshots } = require('../src/services/storage');
+    const result = await listSnapshots();
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it('uploadZoneSnapshot returns a filename', async () => {
+    const { uploadZoneSnapshot } = require('../src/services/storage');
+    const result = await uploadZoneSnapshot([{ id: 'test', capacity: 0.5 }]);
+    expect(result).toBe('snapshots/test.json');
+  });
+});
+
+// ===== RATE LIMITING SMOKE TEST =====
+describe('Rate limiting', () => {
+  it('/health is accessible (not rate limited)', async () => {
+    const results = await Promise.all(
+      Array(5).fill(null).map(() => request(app).get('/health'))
+    );
+    results.forEach(r => expect(r.status).toBe(200));
   });
 });

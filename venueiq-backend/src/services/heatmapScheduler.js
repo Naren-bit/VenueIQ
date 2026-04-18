@@ -1,10 +1,30 @@
-// src/services/heatmapScheduler.js
+/**
+ * @fileoverview Heatmap scheduler service for VenueIQ.
+ * Simulates live crowd dynamics by updating zone capacity and wait times
+ * every 2 minutes. Pushes updates to all connected clients via Socket.IO
+ * and records snapshots for predictive forecasting. Uploads zone snapshots
+ * to Google Cloud Storage every 10 ticks (~20 minutes) for historical analysis.
+ * @module heatmapScheduler
+ */
 
 const { getZones, updateAllZones, pushAlert } = require('./firebase');
 const { recordSnapshot } = require('./predictor');
+const { uploadZoneSnapshot } = require('./storage');
 
+/** @type {NodeJS.Timeout|null} */
 let intervalId = null;
 
+/** @type {number} Tick counter for Cloud Storage snapshot scheduling */
+let tickCount = 0;
+
+/**
+ * Start the heatmap scheduler. Updates all zone capacities every 2 minutes
+ * with realistic crowd drift based on time-of-day heuristics.
+ * Pushes staggered exit alerts at minute 82 and halftime surge warnings at minute 43.
+ *
+ * @param {import('socket.io').Server} io - Socket.IO server instance for broadcasting
+ * @returns {void}
+ */
 function startHeatmapScheduler(io) {
   if (intervalId) return;
   console.log('[Heatmap] Scheduler started — updating every 2 minutes');
@@ -51,6 +71,12 @@ function startHeatmapScheduler(io) {
         wait:     updates[`zones/${z.id}/wait`],
       }));
       await recordSnapshot(updatedZones);
+
+      // Upload zone snapshot to Google Cloud Storage every 10 ticks (~20 min)
+      tickCount++;
+      if (tickCount % 10 === 0) {
+        uploadZoneSnapshot(updatedZones).catch(() => {}); // async, non-blocking
+      }
 
       // Push live update to all connected WebSocket clients
       io.emit('zones:updated', updatedZones);
@@ -100,6 +126,11 @@ function startHeatmapScheduler(io) {
   intervalId = setInterval(tick, 2 * 60 * 1000);
 }
 
+/**
+ * Stop the heatmap scheduler and clear the interval.
+ *
+ * @returns {void}
+ */
 function stopHeatmapScheduler() {
   if (intervalId) { clearInterval(intervalId); intervalId = null; }
 }

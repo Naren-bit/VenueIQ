@@ -1,8 +1,20 @@
 /**
+ * @fileoverview Global error handler middleware for VenueIQ API.
+ * Catches all unhandled errors from route handlers and returns
+ * structured JSON error responses with appropriate HTTP status codes.
+ * @module errorHandler
+ */
+
+/**
  * Global error handler middleware.
  * Catches all unhandled errors from route handlers.
  * In development: includes stack trace. In production: error message only.
  * Handles special cases: JSON parse errors, payload too large.
+ *
+ * @param {Error} err - the error object
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} _next - Express next function (unused but required by Express)
  */
 function errorHandler(err, req, res, _next) {
   // Handle malformed JSON body

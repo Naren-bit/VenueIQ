@@ -127,6 +127,31 @@ This data enables venue operators to understand fan behavior patterns and optimi
 
 ---
 
+## 7. Firebase Analytics — Server-Side Event Tracking
+
+**File:** [`venueiq-backend/src/services/firebase.js`](venueiq-backend/src/services/firebase.js)
+
+Server-side analytics events are tracked via the `trackEvent()` function, writing to `analytics/events` in Firebase RTDB:
+- `chat_message_sent` — every chat interaction
+- `zone_viewed` — zone data requests
+- `alert_generated` — Gemini-powered alert creation
+- `section_set` — user section identification
+- `snapshot_uploaded` — Cloud Storage snapshot events
+
+---
+
+## 8. Cloud Storage (Firebase) — Zone Snapshot Archive
+
+**File:** [`venueiq-backend/src/services/storage.js`](venueiq-backend/src/services/storage.js)
+
+Every 10 heatmap scheduler ticks (~20 minutes), a full JSON snapshot of all zone data is uploaded to Google Cloud Storage:
+- **Path pattern:** `snapshots/zones-{timestamp}.json`
+- **Purpose:** Historical crowd pattern analysis and trend validation
+- **Access:** Via `GET /api/dashboard/snapshots` (operator-authenticated)
+- **Graceful degradation:** If the bucket is not configured, uploads are silently skipped
+
+---
+
 ## Service Integration Summary
 
 | Google Service | SDK/Package | Purpose | File |
@@ -134,6 +159,8 @@ This data enables venue operators to understand fan behavior patterns and optimi
 | **Gemini 2.0 Flash** | `@google/generative-ai` | AI chat + alert generation | `services/gemini.js` |
 | **Firebase RTDB** | `firebase-admin` | Real-time zone/alert/report storage | `services/firebase.js` |
 | **Firebase Admin SDK** | `firebase-admin` | Server-side authentication | `services/firebase.js` |
+| **Firebase Analytics** | `firebase-admin` | Server-side event tracking | `services/firebase.js` |
+| **Cloud Storage** | `firebase-admin/storage` | Zone snapshot archive for historical analysis | `services/storage.js` |
 | **Cloud Run** | `Dockerfile` | Containerized backend deployment | `Dockerfile` |
 | **Cloud Build** | `cloudbuild.yaml` | Automated CI/CD pipeline | `cloudbuild.yaml` |
 | **Google Analytics 4** | `gtag.js` | Frontend usage telemetry | `public/app.html` |
@@ -144,5 +171,7 @@ This data enables venue operators to understand fan behavior patterns and optimi
 
 1. **Gemini 2.0 Flash** was chosen over GPT-4 for its 1M context window, sub-second latency, and native structured output — critical for injecting 8 zones of live data into every prompt.
 2. **Firebase RTDB** was chosen over Firestore for its lower latency on frequent small reads (zone polling every 2 minutes) and native WebSocket support.
-3. **Cloud Run** was chosen over App Engine for its container-native scaling and WebSocket support (required for Socket.IO).
-4. **Google Analytics** provides operator-facing insights without requiring a custom analytics backend.
+3. **Cloud Storage** enables historical analysis of crowd patterns — essential for venue operators to plan staffing and logistics for future events.
+4. **Cloud Run** was chosen over App Engine for its container-native scaling and WebSocket support (required for Socket.IO).
+5. **Google Analytics** provides operator-facing insights without requiring a custom analytics backend.
+

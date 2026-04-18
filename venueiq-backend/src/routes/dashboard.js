@@ -1,9 +1,16 @@
-// src/routes/dashboard.js
+/**
+ * @fileoverview Operator dashboard routes for VenueIQ.
+ * Provides venue overview, zone overrides, alert broadcasting,
+ * gate closure management, and historical snapshot access.
+ * Protected by X-Ops-Token authentication.
+ * @module routes/dashboard
+ */
 
 const express = require('express');
 const router = express.Router();
 const { getZones, updateZone, pushAlert, getAlerts } = require('../services/firebase');
 const { getAllForecasts } = require('../services/predictor');
+const { listSnapshots } = require('../services/storage');
 
 // Simple token auth middleware — replace DASHBOARD_TOKEN in .env
 function requireOpsAuth(req, res, next) {
@@ -133,6 +140,18 @@ router.post('/close-gate', async (req, res, next) => {
     }
 
     res.json({ success: true, alertId });
+  } catch (err) { next(err); }
+});
+
+/**
+ * GET /api/dashboard/snapshots
+ * List historical zone snapshots from Google Cloud Storage.
+ * Used for crowd pattern analysis over time.
+ */
+router.get('/snapshots', async (req, res, next) => {
+  try {
+    const snapshots = await listSnapshots(20);
+    res.json({ snapshots, count: snapshots.length });
   } catch (err) { next(err); }
 });
 

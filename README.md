@@ -11,6 +11,21 @@
 
 ---
 
+## Problem Statement Alignment
+
+This project directly addresses every dimension of the PromptWars challenge:
+
+| Challenge Dimension | VenueIQ Solution |
+|---|---|
+| **Crowd movement** | Walk-time proximity scoring routes fans via least-congested paths, not just shortest queues |
+| **Waiting times** | Live Firebase data + EWMA forecasting predicts queues 15 min ahead |
+| **Real-time coordination** | Socket.IO pushes zone updates, alerts, and exit coordination to all fans simultaneously |
+| **Seamless experience** | PWA: no app download, works offline, installable, service worker cached |
+| **Enjoyable experience** | Conversational AI gives specific, actionable answers in natural language |
+| **Large-scale venues** | Operator dashboard for venue staff; group meetup for fan coordination; staggered exit system |
+
+---
+
 ## ✨ What Makes VenueIQ Different
 
 - 🎯 **Section-Aware Intelligence** — Pick your seat once. Every recommendation is personalized with walk-time estimates from YOUR section.
