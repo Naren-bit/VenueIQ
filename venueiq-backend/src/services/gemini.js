@@ -198,4 +198,38 @@ function localFallback(message, zones, history = [], explicitSection = null) {
   return `I have live data on **${zones.length} venue zones** right now. Ask me about food queues, gate wait times, restrooms, parking, or how to find your seat! 🏟️`;
 }
 
-module.exports = { chat, generateAlert, localFallback };
+module.exports = { chat, generateAlert, localFallback, analyzeImage };
+
+/**
+ * Analyze an image using Gemini 2.0 Flash multimodal vision.
+ * Fans take a photo of a queue and the AI estimates crowd density.
+ *
+ * @param {string} base64Image - base64-encoded image data
+ * @param {string} mimeType - 'image/jpeg' or 'image/png'
+ * @param {Array} zones - current live zone data for context
+ * @param {string|null} userSection - user's current section
+ * @returns {Promise<{reply: string, estimatedWait: number|null, crowdLevel: string}>}
+ */
+async function analyzeImage(base64Image, mimeType, zones, userSection) {
+  const zoneCtx = zones
+    .map(z => `${z.name} (${z.type}): ${z.wait}min wait, ${Math.round(z.capacity * 100)}% full`)
+    .join('\n');
+
+  const model = getClient().getGenerativeModel({
+    model: 'gemini-2.0-flash',
+    systemInstruction: `You are VenueIQ's crowd vision AI. Analyze photos from stadium fans.
+Estimate: number of people, crowd density (empty/light/moderate/busy/packed), wait time.
+Respond ONLY with valid JSON (no markdown fencing):
+{"reply":"2-3 sentence analysis","estimatedWait":<number>,"crowdLevel":"<density>"}`,
+    generationConfig: { maxOutputTokens: 250, temperature: 0.5 },
+  });
+
+  const result = await model.generateContent([
+    { text: `Photo from a fan${userSection ? ` in section ${userSection}` : ''}.\nLive data:\n${zoneCtx}\n\nAnalyze the crowd.` },
+    { inlineData: { mimeType: mimeType || 'image/jpeg', data: base64Image } },
+  ]);
+
+  const raw = result.response.text().replace(/```json|```/g, '').trim();
+  try { return JSON.parse(raw); }
+  catch { return { reply: raw, estimatedWait: null, crowdLevel: 'unknown' }; }
+}

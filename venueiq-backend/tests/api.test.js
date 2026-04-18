@@ -59,6 +59,7 @@ jest.mock('../src/services/gemini', () => ({
   chat: jest.fn().mockResolvedValue('**West Food Court** has the shortest wait — just **6 min**. 🍔'),
   generateAlert: jest.fn().mockResolvedValue({ title: 'Test', body: 'Test body', urgency: 'info' }),
   localFallback: jest.fn().mockReturnValue('Fallback response'),
+  analyzeImage: jest.fn().mockResolvedValue({ reply: 'I see about 30 people.', estimatedWait: 12, crowdLevel: 'moderate' }),
 }));
 
 jest.mock('../src/services/predictor', () => ({

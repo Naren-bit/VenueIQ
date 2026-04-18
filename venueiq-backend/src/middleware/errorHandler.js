@@ -24,7 +24,7 @@ function errorHandler(err, req, res, _next) {
 
   // Handle payload too large
   if (err.type === 'entity.too.large') {
-    return res.status(413).json({ error: 'Request body too large (max 50kb)' });
+    return res.status(413).json({ error: 'Request body too large (max 5mb)' });
   }
 
   const status = err.status || err.statusCode || 500;

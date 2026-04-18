@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { chat, localFallback } = require('../services/gemini');
+const { chat, localFallback, analyzeImage } = require('../services/gemini');
 const { getZones } = require('../services/firebase');
 const { getAllForecasts } = require('../services/predictor');
 
@@ -79,6 +79,36 @@ router.post('/', async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+});
+
+/**
+ * POST /api/chat/vision
+ * Body: { image: string (base64), mimeType?: string, section?: string }
+ * Analyzes a photo using Gemini multimodal vision for crowd estimation.
+ */
+router.post('/vision', async (req, res, next) => {
+  try {
+    const { image, mimeType = 'image/jpeg', section = null } = req.body;
+    if (!image || typeof image !== 'string') {
+      return res.status(400).json({ error: '`image` (base64 string) is required' });
+    }
+    if (image.length > 7_000_000) {
+      return res.status(400).json({ error: 'Image too large (max ~5MB)' });
+    }
+    const zones = await getZones();
+    const result = await analyzeImage(image, mimeType, zones, section);
+    res.json({
+      reply: result.reply || 'Could not analyze the image.',
+      vision: {
+        crowdLevel: result.crowdLevel || 'unknown',
+        estimatedWait: result.estimatedWait || null,
+      },
+      timestamp: Date.now(),
+    });
+  } catch (err) {
+    console.error('[Vision] Error:', err.message);
+    res.status(500).json({ error: 'Vision analysis failed. Try a text question instead.' });
   }
 });
 

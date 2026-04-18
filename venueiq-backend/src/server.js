@@ -117,7 +117,7 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false, // needed for Google Maps tiles
 }));
 app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
-app.use(express.json({ limit: '50kb' }));
+app.use(express.json({ limit: '5mb' }));
 app.use(sanitizeBody);
 app.use(requestLogger);
 
@@ -144,6 +144,7 @@ app.get('/health', (req, res) => res.json({
   uptime:    Math.floor(process.uptime()),
   timestamp: new Date().toISOString(),
   version:   require('../package.json').version,
+  wsClients: io.engine ? io.engine.clientsCount : 0,
 }));
 
 // ===== Error Handler (must be before static fallback for API errors) =====

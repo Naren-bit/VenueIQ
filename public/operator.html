@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VenueIQ Operator Command Center — real-time stadium crowd intelligence dashboard.">
+  <title>VenueIQ — Operator Command Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#07080f;--surface:#0f1018;--surface2:#161720;--surface3:#1d1e2c;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--accent:#39d98a;--accent2:#7c6af7;--warn:#f5a623;--danger:#f26464;--text:#eeeef2;--muted:#6b6e85;--mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif}
+    body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
+    .header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);background:var(--surface)}
+    .logo{font-family:var(--mono);font-size:18px;font-weight:700}.logo span{color:var(--accent)}
+    .badge{padding:4px 12px;border-radius:4px;font-size:11px;font-family:var(--mono);font-weight:600}
+    .badge-live{background:rgba(57,217,138,0.15);color:var(--accent);border:1px solid rgba(57,217,138,0.3);animation:pulse 2s infinite}
+    .badge-ops{background:rgba(124,106,247,0.15);color:var(--accent2);border:1px solid rgba(124,106,247,0.3)}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+    .header-badges{display:flex;gap:8px;align-items:center}
+    .grid{display:grid;grid-template-columns:1fr 1fr 340px;grid-template-rows:auto 1fr;gap:16px;padding:16px 24px;height:calc(100vh - 65px)}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;overflow:auto}
+    .card-title{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:12px}
+    .stats-bar{grid-column:1/-1;display:flex;gap:12px}
+    .stat-card{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+    .stat-value{font-family:var(--mono);font-size:32px;font-weight:700;line-height:1}
+    .stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:6px}
+    .stat-value.green{color:var(--accent)}.stat-value.yellow{color:var(--warn)}.stat-value.red{color:var(--danger)}
+    .zone-table{width:100%;border-collapse:collapse;font-size:13px}
+    .zone-table th{text-align:left;padding:8px 12px;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);border-bottom:1px solid var(--border)}
+    .zone-table td{padding:10px 12px;border-bottom:1px solid var(--border)}
+    .zone-table tr:hover{background:var(--surface2)}
+    .cap-bar{width:80px;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+    .cap-fill{height:100%;border-radius:3px;transition:width 0.5s,background 0.5s}
+    .status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+    .status-clear{background:var(--accent)}.status-busy{background:var(--warn)}.status-critical{background:var(--danger);animation:pulse 1s infinite}
+    .alert-item{padding:10px 12px;border-radius:8px;margin-bottom:8px;border:1px solid var(--border);font-size:12px}
+    .alert-item.urgent{border-left:3px solid var(--danger)}.alert-item.info{border-left:3px solid var(--accent2)}
+    .alert-title{font-weight:600;margin-bottom:4px}.alert-time{color:var(--muted);font-size:10px;font-family:var(--mono)}
+    .actions{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+    .action-btn{padding:10px 16px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:left;display:flex;align-items:center;gap:8px}
+    .action-btn:hover{border-color:var(--accent2);background:var(--surface3);transform:translateY(-1px)}
+    .action-btn.danger{border-color:rgba(242,100,100,0.3)}.action-btn.danger:hover{border-color:var(--danger);background:rgba(242,100,100,0.08)}
+    .action-btn.success{border-color:rgba(57,217,138,0.3)}.action-btn.success:hover{border-color:var(--accent);background:rgba(57,217,138,0.08)}
+    .action-emoji{font-size:18px}
+    .broadcast-input{width:100%;padding:8px 12px;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:13px;margin-bottom:8px;outline:none}
+    .broadcast-input:focus{border-color:var(--accent2)}.broadcast-input::placeholder{color:var(--muted)}
+    .conn-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+    .conn-dot.connected{background:var(--accent);box-shadow:0 0 6px var(--accent)}.conn-dot.disconnected{background:var(--danger)}
+    @media(max-width:1100px){.grid{grid-template-columns:1fr 1fr}.alerts-feed{grid-column:1/-1}}
+    @media(max-width:700px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">Venue<span>IQ</span> — Command Center</div>
+    <div class="header-badges">
+      <span class="badge badge-ops">OPERATOR</span>
+      <span class="badge badge-live">● LIVE</span>
+      <span class="conn-dot connected" id="conn-status" title="WebSocket connected"></span>
+    </div>
+  </header>
+  <main class="grid">
+    <div class="stats-bar">
+      <div class="stat-card"><div class="stat-value green" id="stat-clear">—</div><div class="stat-label">Clear Zones</div></div>
+      <div class="stat-card"><div class="stat-value yellow" id="stat-busy">—</div><div class="stat-label">Busy Zones</div></div>
+      <div class="stat-card"><div class="stat-value red" id="stat-critical">—</div><div class="stat-label">Critical</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-avg">—</div><div class="stat-label">Avg Wait</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-fans">—</div><div class="stat-label">Fans Online</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Live Zone Status</div>
+      <table class="zone-table"><thead><tr><th>Zone</th><th>Type</th><th>Wait</th><th>Capacity</th><th>Status</th></tr></thead><tbody id="zone-tbody"></tbody></table>
+    </div>
+    <div class="card">
+      <div class="card-title">Quick Actions</div>
+      <div class="actions" id="action-list">
+        <button class="action-btn danger" id="btn-rush"><span class="action-emoji">📈</span> Simulate Halftime Rush</button>
+        <button class="action-btn danger" id="btn-close-gate"><span class="action-emoji">🚧</span> Close Gate &amp; Redirect</button>
+      </div>
+      <div style="margin-top:20px">
+        <div class="card-title">Custom Broadcast</div>
+        <input class="broadcast-input" id="bc-title" placeholder="Alert title..." maxlength="50">
+        <input class="broadcast-input" id="bc-body" placeholder="Alert body..." maxlength="200">
+        <select class="broadcast-input" id="bc-urgency"><option value="urgent">⚠️ Urgent</option><option value="info">ℹ️ Info</option></select>
+        <button class="action-btn success" id="btn-broadcast"><span class="action-emoji">📡</span> Send to All Fans</button>
+      </div>
+    </div>
+    <div class="card alerts-feed">
+      <div class="card-title">Alert Feed</div>
+      <div id="alert-feed"></div>
+    </div>
+  </main>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    var BACKEND = window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://venueiq-8w9e.onrender.com';
+    var OPS_TOKEN = 'change-this-to-a-strong-random-secret';
+    var socket = io(BACKEND);
+    socket.on('connect', function(){ document.getElementById('conn-status').className='conn-dot connected'; });
+    socket.on('disconnect', function(){ document.getElementById('conn-status').className='conn-dot disconnected'; });
+
+    socket.on('zones:updated', function(zones){ renderZones(zones); });
+    socket.on('alert:new', function(a){
+      var f=document.getElementById('alert-feed'), d=document.createElement('div');
+      d.className='alert-item '+(a.urgency||'info');
+      d.innerHTML='<div class="alert-title">'+(a.icon||'📢')+' '+a.title+'</div><div>'+a.body+'</div><div class="alert-time">'+new Date().toLocaleTimeString()+'</div>';
+      f.prepend(d);
+    });
+
+    function renderZones(zones){
+      var tb=document.getElementById('zone-tbody'), c=0,b=0,cr=0,tw=0;
+      tb.innerHTML=zones.map(function(z){
+        var p=Math.round(z.capacity*100), s=p>80?'critical':p>60?'busy':'clear';
+        if(s==='clear')c++;else if(s==='busy')b++;else cr++;
+        tw+=z.wait;
+        var col=s==='critical'?'var(--danger)':s==='busy'?'var(--warn)':'var(--accent)';
+        return '<tr><td><strong>'+z.name+'</strong></td><td style="color:var(--muted);text-transform:uppercase;font-size:10px">'+z.type+'</td><td><span style="font-family:var(--mono);color:'+col+';font-weight:600">'+z.wait+'m</span></td><td><div class="cap-bar"><div class="cap-fill" style="width:'+p+'%;background:'+col+'"></div></div> <span style="font-size:10px;color:var(--muted)">'+p+'%</span></td><td><span class="status-dot status-'+s+'"></span>'+s+'</td></tr>';
+      }).join('');
+      document.getElementById('stat-clear').textContent=c;
+      document.getElementById('stat-busy').textContent=b;
+      document.getElementById('stat-critical').textContent=cr;
+      document.getElementById('stat-avg').textContent=zones.length?Math.round(tw/zones.length):'—';
+    }
+
+    // Initial load
+    fetch(BACKEND+'/api/zones').then(function(r){return r.json();}).then(function(d){renderZones(d.zones||d);}).catch(function(){});
+    setInterval(function(){fetch(BACKEND+'/health').then(function(r){return r.json();}).then(function(d){document.getElementById('stat-fans').textContent=d.wsClients||'—';}).catch(function(){});},5000);
+
+    // Actions — all bound with addEventListener, no inline onclick
+    document.getElementById('btn-rush').addEventListener('click', function(){
+      if(!confirm('Simulate halftime rush?'))return;
+      fetch(BACKEND+'/api/simulate',{method:'POST',headers:{'Content-Type':'application/json'}}).then(function(r){return r.json();}).then(function(d){alert(d.message||'Done');}).catch(function(e){alert(e.message);});
+    });
+    document.getElementById('btn-close-gate').addEventListener('click', function(){
+      var g=prompt('Gate ID to close (e.g. south-gate):');
+      var r=prompt('Redirect to (e.g. north-gate):');
+      if(!g||!r)return;
+      fetch(BACKEND+'/api/dashboard/close-gate',{method:'POST',headers:{'Content-Type':'application/json','X-Ops-Token':OPS_TOKEN},body:JSON.stringify({closedGateId:g,redirectToGateId:r})}).then(function(r){return r.json();}).then(function(d){alert(d.success?'Gate closed!':d.error);});
+    });
+    document.getElementById('btn-broadcast').addEventListener('click', function(){
+      var t=document.getElementById('bc-title').value.trim();
+      var b=document.getElementById('bc-body').value.trim();
+      var u=document.getElementById('bc-urgency').value;
+      if(!t||!b){alert('Title and body required');return;}
+      fetch(BACKEND+'/api/dashboard/broadcast',{method:'POST',headers:{'Content-Type':'application/json','X-Ops-Token':OPS_TOKEN},body:JSON.stringify({title:t,body:b,urgency:u})}).then(function(r){return r.json();}).then(function(d){if(d.success){document.getElementById('bc-title').value='';document.getElementById('bc-body').value='';alert('Broadcast sent!');}else{alert(d.error);}});
+    });
+  </script>
+</body>
+</html>
