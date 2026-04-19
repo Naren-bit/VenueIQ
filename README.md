@@ -51,6 +51,9 @@ This project directly addresses every dimension of the PromptWars challenge:
 - 🌑 **Stadium Ops Centre UI** — Dark, data-dense, designed for noisy stadiums. Feels like mission control.
 - ✈️ **Works Offline** — Smart local fallback engine provides useful answers even without internet.
 - 👥 **Group Coordination** — Share a code, see your group's sections, plan meetups mid-event.
+- 👁️ **Multimodal AI Vision** — Upload a photo of any queue; Gemini analyzes the image density and outputs structured queue estimations.
+- 🗣️ **Voice Accessibility** — Push-to-talk Web Speech API integration with native TTS for hands-free navigation.
+- 🕹️ **Operator Command Center** — A God-mode dashboard (`/operator.html`) for staff to monitor heatmaps, trigger automated staggered exits, and broadcast alerts.
 
 ---
 

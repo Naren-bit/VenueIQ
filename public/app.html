@@ -1047,28 +1047,23 @@
     
     window.triggerDemoMode = async function() {
       const btn = document.getElementById('demo-btn');
-      btn.textContent = '⏳ Simulating...'; btn.disabled = true;
-      const surgedZones = currentZones.map(z => ({ ...z, capacity: z.type === 'food' ? 0.9 : z.type === 'gate' ? 0.75 : z.capacity, wait: z.type === 'food' ? 19 : z.type === 'gate' ? 16 : z.wait }));
-      currentZones = surgedZones;
-      renderNowTab(surgedZones, getSection(), {});
-      renderZoneGrid(surgedZones, document.getElementById('map-zone-cards'));
-      drawMap(surgedZones, 0);
-
-      addMessage('⚡ **Halftime rush detected!** Food courts are surging. West Food Court is your best option — move now before the queue hits 20+ minutes.', 'bot');
-      if (window.voiceTriggered === undefined) window.voiceTriggered = true; // force speech
-      speakResponse('Halftime rush detected. Move to West Food Court now.');
-
-      const alertsList = document.getElementById('alerts-list');
-      if (alertsList) {
-        const div = document.createElement('div');
-        div.className = 'alert-card alert-urgent new-alert';
-        div.setAttribute('role', 'alert');
-        div.innerHTML = `<div class="alert-icon">⏱️</div><div class="alert-content"><div class="alert-title">Halftime rush starting</div><div class="alert-body">Food courts filling fast. West Food: 8 min (best). East Food: 19 min. Move now.</div><div class="alert-time">just now</div></div>`;
-        alertsList.insertBefore(div, alertsList.firstChild);
+      if (btn) { btn.textContent = '⏳ Simulating...'; btn.disabled = true; }
+      try {
+        await fetch(`${BACKEND_URL}/api/simulate`, { method: 'POST' });
+        
+        addMessage('⚡ **Halftime rush detected!** Food courts are surging. West Food Court is your best option — move now before the queue hits 20+ minutes.', 'bot');
+        if (window.voiceTriggered === undefined) window.voiceTriggered = true; // force speech
+        speakResponse('Halftime rush detected. Move to West Food Court now.');
+        
+        const alertsTab = document.querySelector('[data-tab="alerts"]');
+        if (alertsTab) alertsTab.dataset.badge = '●';
+        
+        setTimeout(() => { if (btn) { btn.textContent = '⚡ Judge Demo — Simulate Halftime Rush'; btn.disabled = false; } }, 3000);
+      } catch (err) {
+        console.error("Demo Mode Error:", err);
+        addMessage(`Demo Error: ${err.message}`, 'bot');
+        if (btn) { btn.textContent = '⚡ Judge Demo — Simulate Halftime Rush'; btn.disabled = false; }
       }
-      const alertsTab = document.querySelector('[data-tab="alerts"]');
-      if (alertsTab) alertsTab.dataset.badge = '●';
-      setTimeout(() => { btn.textContent = '⚡ Judge Demo — Simulate Halftime Rush'; btn.disabled = false; }, 3000);
     };
 
     window.triggerSimulation = async function() {

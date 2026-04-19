@@ -694,6 +694,9 @@ nav {
 .feat-card.gold::before { background: var(--gold); }
 .feat-card.purple::before { background: #a78bfa; }
 .feat-card.teal::before { background: #2dd4bf; }
+.feat-card.orange::before { background: #f97316; }
+.feat-card.pink::before { background: #ec4899; }
+.feat-card.cyan::before { background: #06b6d4; }
 
 .feat-num {
   font-family: 'JetBrains Mono', monospace;
@@ -733,6 +736,9 @@ nav {
 .feat-pill.gold { background: rgba(200,168,75,0.1); color: var(--gold); border: 1px solid rgba(200,168,75,0.2); }
 .feat-pill.purple { background: rgba(167,139,250,0.1); color: #a78bfa; border: 1px solid rgba(167,139,250,0.2); }
 .feat-pill.teal { background: rgba(45,212,191,0.1); color: #2dd4bf; border: 1px solid rgba(45,212,191,0.2); }
+.feat-pill.orange { background: rgba(249,115,22,0.1); color: #f97316; border: 1px solid rgba(249,115,22,0.2); }
+.feat-pill.pink { background: rgba(236,72,153,0.1); color: #ec4899; border: 1px solid rgba(236,72,153,0.2); }
+.feat-pill.cyan { background: rgba(6,182,212,0.1); color: #06b6d4; border: 1px solid rgba(6,182,212,0.2); }
 
 /* ──────────── SOCIAL PROOF ──────────── */
 .social-section {
@@ -1157,6 +1163,7 @@ a:focus-visible, button:focus-visible {
     <li><a href="#features">Features</a></li>
     <li><a href="#stack">Technology</a></li>
     <li><a href="#testimonials">Reviews</a></li>
+    <li><a href="/operator.html">Operator</a></li>
   </ul>
   <div class="nav-cta">
     <a href="/app.html" class="btn-primary" aria-label="Launch VenueIQ app">
@@ -1382,6 +1389,24 @@ a:focus-visible, button:focus-visible {
       <div class="feat-title">Crowd Reporting</div>
       <div class="feat-desc">Fans tap to report congestion at any zone. Cloud Functions aggregate the last 20 crowd reports to dynamically update that zone's capacity and wait time.</div>
       <span class="feat-pill teal">Crowdsourced Intel</span>
+    </div>
+    <div class="feat-card orange">
+      <div class="feat-num">F-07</div>
+      <div class="feat-title">Multimodal Vision</div>
+      <div class="feat-desc">Fans can take a photo of a queue. Gemini 2.0 Flash analyzes the image, identifies the density, and provides a real-time wait estimation in seconds.</div>
+      <span class="feat-pill orange">Gemini 2.0 Flash</span>
+    </div>
+    <div class="feat-card pink">
+      <div class="feat-num">F-08</div>
+      <div class="feat-title">Voice Accessibility</div>
+      <div class="feat-desc">Hold to speak using the Web Speech API. Native text-to-speech engine speaks the AI's response aloud, allowing hands-free navigation while walking.</div>
+      <span class="feat-pill pink">Voice UX</span>
+    </div>
+    <div class="feat-card cyan">
+      <div class="feat-num">F-09</div>
+      <div class="feat-title">Operator Dashboard</div>
+      <div class="feat-desc">A God-mode Mission Control dashboard for stadium staff. Monitor live heatmaps, trigger automated staggered exits, and broadcast emergency alerts to all fans.</div>
+      <span class="feat-pill cyan">Real-Time Control</span>
     </div>
   </div>
 </section>
