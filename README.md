@@ -11,6 +11,23 @@
 
 ---
 
+## 🚀 Live Demo Guide for Judges
+
+To see the **Top 3 Hackathon features**, follow this 90-second demo sequence:
+
+1. **Open the App (`/`)**: You are presented with the Fan PWA. Note the sleek, cinematic UI transitions when navigating tabs.
+2. **Match Clock & Phase**: Notice the live match clock at the top (e.g. `43' 1st Half`).
+3. **Simulate Halftime Rush**: Click the "Judge Demo — Simulate Halftime Rush" button at the bottom of the "Now" tab.
+   - Watch the Wait Time numbers instantly increment with a smooth counting animation.
+   - See the Sparkline charts immediately update to reflect the surge in crowd density.
+   - A critical alert drops in via WebSocket ("Halftime rush starting. Move now.").
+   - The AI voice triggers automatically: "Halftime rush detected. Move to West Food Court now."
+4. **Multimodal AI Vision**: Switch to the **Assistant** tab. Click the Camera icon on the left of the input bar and upload any photo of a queue. 
+   - Gemini 2.0 Flash instantly counts the people, estimates the wait time, and returns a dynamic UI card displaying the vision analytics.
+5. **Operator Dashboard**: Open `/operator.html` in a separate tab to view the live backend intelligence ("Mission Control").
+
+---
+
 ## Problem Statement Alignment
 
 This project directly addresses every dimension of the PromptWars challenge:

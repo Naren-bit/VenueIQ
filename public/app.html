@@ -657,7 +657,70 @@
     .map-external-wrap.active { display: block; }
     .map-canvas-wrap.hidden { display: none; }
 
-    /* INTENT FRAMING */
+    
+/* TRANSITIONS */
+@keyframes slideInRight { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+@keyframes slideOutLeft { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(-24px); } }
+@keyframes slideOutRight { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(24px); } }
+
+.panel { display: none; flex: 1; flex-direction: column; overflow-x: hidden; overflow-y: auto; opacity: 1; pointer-events: none; }
+.panel.active { display: flex; animation: slideInRight 0.22s cubic-bezier(0.22,1,0.36,1) forwards; pointer-events: auto; }
+.panel.exiting-left { display: flex; animation: slideOutLeft 0.18s ease forwards; pointer-events: none; }
+.panel.exiting-right { display: flex; animation: slideOutRight 0.18s ease forwards; pointer-events: none; }
+
+@keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.zone-card { opacity: 0; animation: cardIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+.alert-card.new-alert { animation: alertSlideIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards; border-color: var(--accent2); }
+@keyframes alertSlideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+
+.tab[data-badge]::after { content: attr(data-badge); position: absolute; top: 4px; right: 10px; width: 7px; height: 7px; border-radius: 50%; background: var(--danger); font-size: 0; }
+
+/* SPARKLINE */
+.sparkline { width: 100%; height: 28px; display: block; margin-top: 8px; }
+
+/* MATCH CLOCK */
+.match-clock-wrap { display: flex; flex-direction: column; align-items: flex-end; font-family: var(--mono); }
+.clock-min { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1; }
+.clock-label { font-size: 9px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+.clock-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 10px; margin: 8px 16px; border: 1px solid var(--border2); background: var(--surface2); }
+.clock-badge .clock-min { font-size: 22px; color: var(--accent); }
+.clock-badge .clock-phase { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
+.clock-badge.phase-halftime { border-color: rgba(245,166,35,0.4); background: rgba(245,166,35,0.07); }
+.clock-badge.phase-halftime .clock-min { color: var(--warn); }
+
+.phase-banner { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; font-size: 12.5px; font-weight: 500; animation: slideInRight 0.3s ease; flex-shrink: 0; }
+.phase-banner--warn { background: rgba(245,166,35,0.12); color: #e8960a; border-bottom: 1px solid rgba(245,166,35,0.25); }
+.phase-banner--info { background: rgba(124,106,247,0.1); color: var(--accent2); border-bottom: 1px solid rgba(124,106,247,0.2); }
+.phase-banner button { background: none; border: none; font-size: 18px; cursor: pointer; opacity: 0.6; color: inherit; padding: 0 4px; }
+
+/* VISION RESULT */
+.vision-result { margin-top: 8px; background: var(--surface3); border: 1px solid var(--border2); border-radius: 12px; padding: 10px 14px; animation: cardIn 0.3s ease; }
+.vision-row { display: flex; gap: 16px; margin-bottom: 8px; }
+.vision-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+.vision-val { font-family: var(--mono); font-size: 18px; font-weight: 700; line-height: 1; }
+.vision-bar { height: 4px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; }
+.vision-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+
+/* VOICE */
+.voice-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--surface3); border: 1px solid var(--border2); color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.18s; position: relative; }
+.voice-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+.voice-btn.listening { background: rgba(57,217,138,0.12); border-color: var(--accent); color: var(--accent); animation: voicePulse 1s ease-in-out infinite; }
+.voice-btn.speaking { background: rgba(124,106,247,0.12); border-color: var(--accent2); color: var(--accent2); }
+@keyframes voicePulse { 0%,100% { box-shadow: 0 0 0 0 rgba(57,217,138,0.4); } 50% { box-shadow: 0 0 0 8px rgba(57,217,138,0); } }
+.voice-overlay { position: absolute; bottom: 80px; left: 16px; right: 16px; background: var(--surface2); border: 1px solid var(--accent); border-radius: 16px; padding: 16px; text-align: center; animation: cardIn 0.2s ease; z-index: 10; }
+.voice-wave { display: flex; align-items: center; justify-content: center; gap: 4px; height: 32px; }
+.voice-wave span { width: 3px; border-radius: 3px; background: var(--accent); animation: wave 1.2s ease-in-out infinite; }
+.voice-wave span:nth-child(1) { animation-delay: 0s; height: 8px; }
+.voice-wave span:nth-child(2) { animation-delay: 0.1s; height: 20px; }
+.voice-wave span:nth-child(3) { animation-delay: 0.2s; height: 32px; }
+.voice-wave span:nth-child(4) { animation-delay: 0.1s; height: 20px; }
+.voice-wave span:nth-child(5) { animation-delay: 0s; height: 8px; }
+@keyframes wave { 0%,100% { transform: scaleY(0.4); } 50% { transform: scaleY(1); } }
+
+/* INTENT FRAMING */
     .intent-grid { display: flex; flex-direction: column; gap: 12px; padding: 0 20px; }
     .intent-card {
       background: linear-gradient(145deg, var(--surface2), var(--surface3));
@@ -682,7 +745,7 @@
         <div class="header-logo"><span style="color:var(--text)">Venue</span><span>IQ</span></div>
       </a>
       <div class="header-right">
-        <button class="sim-btn" onclick="triggerSimulation()" id="sim-btn" aria-label="Simulate Halftime">MIN 43</button>
+        <div class="match-clock-wrap"><span class="clock-min" id="match-clock">43'</span><span class="clock-label" id="match-phase">1st Half</span></div>
         <div class="pill ws-pill" id="ws-indicator" aria-label="WebSocket status">WS &nbsp;&nbsp;&nbsp;</div>
         <div class="pill live-pill" id="live-indicator"><div class="live-dot" id="status-dot"></div><span id="status-text">LIVE</span></div>
       </div>
@@ -707,9 +770,15 @@
             <span class="now-location-change">[change]</span>
           </div>
           <div class="now-subtitle">Live venue snapshot</div>
+<div id="now-clock"></div>
         </div>
         <div class="now-cards" id="now-cards"></div>
         <div class="now-footer">Tap any card to ask the assistant</div>
+<div style="padding: 0 1.25rem 1rem; margin-top: auto;">
+  <button id="demo-btn" onclick="triggerDemoMode()" style="width: 100%; padding: 12px; background: rgba(124,106,247,0.1); border: 1px dashed rgba(124,106,247,0.4); border-radius: 12px; color: var(--accent2); font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--sans); display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s;" aria-label="Demo: simulate halftime rush for judges">
+    ⚡ Judge Demo — Simulate Halftime Rush
+  </button>
+</div>
       </section>
 
       <!-- CHAT VIEW -->
@@ -732,13 +801,21 @@
         </div>
         <div class="chat-input-area">
           <input type="file" id="camera-file" accept="image/*" capture="environment" style="display:none" aria-hidden="true">
-          <button class="icon-btn" id="camera-btn" aria-label="Take photo for AI crowd analysis" title="Snap a queue photo" type="button">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 15.2a3.2 3.2 0 100-6.4 3.2 3.2 0 000 6.4z"/><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
-          </button>
+          <button class="camera-btn icon-btn" id="camera-btn" aria-label="Attach photo to estimate crowd size" type="button" title="Snap queue photo for AI crowd estimation">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+    <circle cx="12" cy="13" r="4"/>
+  </svg>
+</button>
           <textarea class="chat-input" id="chat-input" aria-label="Message input" aria-multiline="true" placeholder="Ask about queues, gates, food..." rows="1"></textarea>
-          <button class="icon-btn" id="mic-btn" aria-label="Voice input" title="Speak your question" type="button">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-          </button>
+          <button class="voice-btn" id="voice-btn" aria-label="Hold to speak" type="button" aria-pressed="false" title="Voice input — hold to speak" onpointerdown="startVoice()" onpointerup="stopVoice()" onpointercancel="stopVoice()" onpointerleave="stopVoice()" style="touch-action: none;">
+  <svg class="mic-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+    <line x1="12" y1="19" x2="12" y2="23"/>
+    <line x1="8" y1="23" x2="16" y2="23"/>
+  </svg>
+</button>
           <button class="send-btn" id="send-btn" aria-label="Send message">
             <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
           </button>
@@ -834,6 +911,97 @@
     let currentForecasts = {};
     let userSection = null;
 
+
+    // Match clock
+    const MATCH_START_TIME = Date.now() - (43 * 60 * 1000);
+    function getMatchState() {
+      const elapsedMs = Date.now() - MATCH_START_TIME;
+      const minute = Math.floor(elapsedMs / 60000);
+      if (minute < 0)  return { minute: 0,  phase: 'pre' };
+      if (minute < 45) return { minute,     phase: 'first' };
+      if (minute < 47) return { minute: 45, phase: 'halftime' };
+      if (minute < 90) return { minute: minute - 2, phase: 'second' };
+      return { minute: 90, phase: 'fulltime' };
+    }
+    
+    function showPhaseBanner(message, type) {
+      const existing = document.getElementById('phase-banner');
+      if (existing) return;
+      const banner = document.createElement('div');
+      banner.id = 'phase-banner';
+      banner.className = `phase-banner phase-banner--${type}`;
+      banner.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" aria-label="Dismiss">×</button>`;
+      document.getElementById('app').insertBefore(banner, document.getElementById('tab-bar'));
+      setTimeout(() => banner.remove(), 12000);
+    }
+    function startMatchClock() {
+      function update() {
+        const { minute, phase } = getMatchState();
+        const clockEl = document.getElementById('match-clock');
+        const phaseEl = document.getElementById('match-phase');
+        const nowClockEl = document.getElementById('now-clock');
+        if (clockEl) clockEl.textContent = `${minute}'`;
+        if (phaseEl) {
+          const labels = { pre: 'Pre-match', first: '1st Half', halftime: 'Half Time', second: '2nd Half', fulltime: 'Full Time' };
+          phaseEl.textContent = labels[phase] || '';
+        }
+        if (phase === 'halftime' && minute === 45) showPhaseBanner('⏱ Halftime — food courts filling fast. Head to West Food now.', 'warn');
+        if (minute >= 82 && minute < 85 && phase === 'second') showPhaseBanner('🚶 Plan your exit. Section A–C: leave at 85th min via Gate N.', 'info');
+        if (nowClockEl) {
+          nowClockEl.innerHTML = `
+            <div class="clock-badge phase-${phase}">
+              <span class="clock-min">${minute}'</span>
+              <span class="clock-phase">${phase === 'halftime' ? 'HALF TIME' : phase === 'first' ? '1ST HALF' : phase === 'second' ? '2ND HALF' : phase.toUpperCase()}</span>
+            </div>`;
+        }
+      }
+      update();
+      setInterval(update, 1000);
+    }
+
+    // Sparkline func
+    const zoneHistory = {};
+    function drawSparkline(canvas, values, color) {
+      if (!canvas || values.length < 2) return;
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+      const H = canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      const w = canvas.offsetWidth, h = canvas.offsetHeight;
+      ctx.clearRect(0, 0, w, h);
+      const min = Math.min(...values);
+      const max = Math.max(...values) || 1;
+      const pad = 3;
+      const xStep = (w - pad * 2) / (values.length - 1);
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      const c = color.startsWith('#') ? 'rgba('+parseInt(color.slice(1,3),16)+','+parseInt(color.slice(3,5),16)+','+parseInt(color.slice(5,7),16) : color.replace(')', '');
+      const rgbaStr = (c.startsWith('rgba') ? c.replace(/,[\d\.]+\)$/, '') : c);
+      grad.addColorStop(0, `${rgbaStr},0.25)`);
+      grad.addColorStop(1, `${rgbaStr},0)`);
+      ctx.beginPath();
+      values.forEach((v, i) => { const x = pad + i * xStep; const y = h - pad - ((v - min) / (max - min || 1)) * (h - pad * 2); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
+      ctx.lineTo(pad + (values.length - 1) * xStep, h); ctx.lineTo(pad, h); ctx.closePath();
+      ctx.fillStyle = grad; ctx.fill();
+      ctx.beginPath();
+      values.forEach((v, i) => { const x = pad + i * xStep; const y = h - pad - ((v - min) / (max - min || 1)) * (h - pad * 2); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
+      ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
+      const lastX = pad + (values.length - 1) * xStep; const lastV = values[values.length - 1]; const lastY = h - pad - ((lastV - min) / (max - min || 1)) * (h - pad * 2);
+      ctx.beginPath(); ctx.arc(lastX, lastY, 2.5, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
+    }
+
+    function animateNumber(el, target, duration = 600) {
+      const start = parseInt(el.textContent) || 0;
+      if (start === target) return;
+      const startTime = performance.now();
+      function update(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(start + (target - start) * eased);
+        if (progress < 1) requestAnimationFrame(update);
+      }
+      requestAnimationFrame(update);
+    }
+
     // DOM
     const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
@@ -876,6 +1044,33 @@
     };
 
     // SIMULATION
+    
+    window.triggerDemoMode = async function() {
+      const btn = document.getElementById('demo-btn');
+      btn.textContent = '⏳ Simulating...'; btn.disabled = true;
+      const surgedZones = currentZones.map(z => ({ ...z, capacity: z.type === 'food' ? 0.9 : z.type === 'gate' ? 0.75 : z.capacity, wait: z.type === 'food' ? 19 : z.type === 'gate' ? 16 : z.wait }));
+      currentZones = surgedZones;
+      renderNowTab(surgedZones, getSection(), {});
+      renderZoneGrid(surgedZones, document.getElementById('map-zone-cards'));
+      drawMap(surgedZones, 0);
+
+      addMessage('⚡ **Halftime rush detected!** Food courts are surging. West Food Court is your best option — move now before the queue hits 20+ minutes.', 'bot');
+      if (window.voiceTriggered === undefined) window.voiceTriggered = true; // force speech
+      speakResponse('Halftime rush detected. Move to West Food Court now.');
+
+      const alertsList = document.getElementById('alerts-list');
+      if (alertsList) {
+        const div = document.createElement('div');
+        div.className = 'alert-card alert-urgent new-alert';
+        div.setAttribute('role', 'alert');
+        div.innerHTML = `<div class="alert-icon">⏱️</div><div class="alert-content"><div class="alert-title">Halftime rush starting</div><div class="alert-body">Food courts filling fast. West Food: 8 min (best). East Food: 19 min. Move now.</div><div class="alert-time">just now</div></div>`;
+        alertsList.insertBefore(div, alertsList.firstChild);
+      }
+      const alertsTab = document.querySelector('[data-tab="alerts"]');
+      if (alertsTab) alertsTab.dataset.badge = '●';
+      setTimeout(() => { btn.textContent = '⚡ Judge Demo — Simulate Halftime Rush'; btn.disabled = false; }, 3000);
+    };
+
     window.triggerSimulation = async function() {
       const btn = document.getElementById('sim-btn');
       btn.style.opacity = '0.5'; btn.textContent = 'DEPLOYING...';
@@ -947,6 +1142,7 @@
         });
 
         socket.on('zones:updated', (updatedZones) => {
+          updatedZones.forEach(z => { if(!zoneHistory[z.id]) zoneHistory[z.id]=[]; zoneHistory[z.id].push(z.capacity); if(zoneHistory[z.id].length>10) zoneHistory[z.id].shift(); });
           currentZones = updatedZones;
           renderZoneGrid(currentZones, document.getElementById('map-zone-cards'));
           renderNowTab(currentZones, getSection(), currentForecasts);
@@ -998,27 +1194,39 @@
       renderNowTab(currentZones, getSection(), currentForecasts);
     }
 
+    
+    const TAB_ORDER = ['now', 'chat', 'map', 'alerts', 'group'];
+    let currentTabIndex = 0;
     function switchTab(tab) {
       const btn = document.querySelector(`.tab[data-tab="${tab}"]`);
       if (btn) {
+        const newIndex = TAB_ORDER.indexOf(tab);
+        const direction = newIndex > currentTabIndex ? 'left' : 'right';
+        const currentView = document.querySelector('.panel.active');
+        if (currentView) {
+          currentView.classList.remove('active');
+          currentView.classList.add(`exiting-${direction}`);
+          setTimeout(() => currentView.classList.remove(`exiting-${direction}`), 200);
+        }
+
         activeTab = tab;
-        document.querySelectorAll('.tab').forEach(b => {
-          b.classList.remove('active');
-          b.setAttribute('aria-selected', 'false');
-        });
-        btn.classList.add('active');
-        btn.setAttribute('aria-selected', 'true');
+        document.querySelectorAll('.tab').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+        btn.classList.add('active'); btn.setAttribute('aria-selected', 'true');
         
         const idx = [...tabBar.querySelectorAll('.tab')].indexOf(btn);
         const totalTabs = tabBar.querySelectorAll('.tab').length;
         tabBar.style.setProperty('--tab-indicator-left', `${(idx / totalTabs) * 100}%`);
         tabBar.style.setProperty('--tab-indicator-width', `${(100 / totalTabs) * 0.75}%`);
         
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        document.getElementById(`view-${tab}`).classList.add('active');
-        if (tab === 'map') setTimeout(() => drawMap(currentZones), 50);
+        const newView = document.getElementById(`view-${tab}`);
+        newView.style.setProperty('--slide-dir', direction === 'left' ? '24px' : '-24px');
+        newView.classList.add('active');
+
+        currentTabIndex = newIndex;
+        if (tab === 'map') setTimeout(() => drawMap(currentZones, 0), 50);
       }
     }
+
 
     // Keydown for tab bar (Accessibility)
     tabBar.addEventListener('keydown', (e) => {
@@ -1078,6 +1286,19 @@
       if (wait <= WAIT_THRESHOLDS.ok) return 'bg-ok';
       if (wait <= WAIT_THRESHOLDS.warn) return 'bg-warn';
       return 'bg-danger';
+    }
+
+    
+    function updateSparklines() {
+      document.querySelectorAll('.now-card').forEach((card, idx) => {
+        const canvas = card.querySelector('.sparkline');
+        if(!canvas) return;
+        const mappedZone = currentZones[idx]; // Note: this is a simple index matching for mock
+        if (mappedZone && zoneHistory[mappedZone.id]) {
+          const color = mappedZone.wait <= 5 ? '#39d98a' : mappedZone.wait <= 15 ? '#f5a623' : '#f26464';
+          drawSparkline(canvas, zoneHistory[mappedZone.id], color);
+        }
+      });
     }
 
     function renderNowTab(zones, section, forecasts) {
@@ -1143,7 +1364,7 @@
       const byWait = type => zones.filter(z => z.type === type).sort((a,b)=>a.wait-b.wait);
       const cards = [{l:'Best food', z:byWait('food')[0], i:'🍔'}, {l:'Best gate', z:byWait('gate')[0], i:'🚪'}, {l:'Nearest restroom', z:byWait('restroom')[0], i:'🚻'}];
       
-      nowCards.innerHTML = cards.map(c => {
+      nowCards.innerHTML = cards.map((c, index) => {
         if (!c.z) return '';
         const fc = forecasts[c.z.id];
         let tr = '→ stable'; let tc = '';
@@ -1160,12 +1381,14 @@
                 <div class="now-card-trend"><span class="${tc}">${tr}</span></div>
               </div>
             </div>
+            <canvas class="sparkline" style="width:100%;height:28px;display:block;margin-top:8px" aria-hidden="true"></canvas>
             <div class="now-card-right">
               <div class="now-card-wait ${getCssColorClass(c.z.wait)}">${c.z.wait}<span class="unit">min</span></div>
             </div>
           </div>
         `;
       }).join('');
+      setTimeout(updateSparklines, 100);
     }
 
     function showOnboarding() {
@@ -1314,6 +1537,7 @@
       hideTyping();
       addMessage(rObj.reply, 'bot');
       conversationHistory.push({ role: 'model', text: rObj.reply });
+      if (window.voiceTriggered || window.preferVoice) { speakResponse(rObj.reply); window.voiceTriggered = false; }
 
       const lastWrap = chatMessages.lastElementChild;
       if (rObj.zones && rObj.zones.length > 0) {
@@ -1338,8 +1562,8 @@
 
     function renderZoneGrid(zones, container) {
       if(!container) return;
-      container.innerHTML = zones.map(z => `
-        <div class="zone-card">
+      container.innerHTML = zones.map((z, index) => `
+        <div class="zone-card" style="animation-delay: ${0.06 * index}s">
           <div class="zone-card-name">${z.name}</div>
           <div class="zone-card-wait ${getCssColorClass(z.wait)}">${z.wait}<span class="unit">min</span></div>
           <div class="zone-bar-track">
@@ -1382,6 +1606,7 @@
           </div>
         `;
       }).join('');
+      setTimeout(updateSparklines, 100);
     }
 
     // GROUP
@@ -1444,7 +1669,10 @@
     }
 
     // MAP
-    function drawMap(zones) {
+    let pulsePhase = 0;
+    function drawMap(zones, manualPhase) {
+      if (manualPhase !== undefined) pulsePhase = manualPhase;
+      pulsePhase = (pulsePhase + 0.02) % (Math.PI * 2);
       const c = document.getElementById('venue-map');
       if(!c) return;
       const ctx = c.getContext('2d');
@@ -1491,10 +1719,12 @@
         ctx.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},1)`;
         ctx.font = "700 11px 'Space Mono'"; ctx.textAlign='center';
         ctx.fillText(z.wait+'m', p.x, p.y+4);
+        if (z.capacity > 0.6) { const pRad = r + 8 + Math.sin(pulsePhase)*6; ctx.beginPath(); ctx.arc(p.x, p.y, pRad, 0, Math.PI*2); ctx.strokeStyle=`rgba(${col[0]},${col[1]},${col[2]},${0.15+Math.sin(pulsePhase)*0.1})`; ctx.stroke(); }
       });
     }
 
-    window.addEventListener('resize', () => { if(activeTab==='map') drawMap(currentZones); });
+    window.addEventListener('resize', () => { if(activeTab==='map') drawMap(currentZones, 0); });
+    function mapLoop(){ if(activeTab==='map') drawMap(currentZones); requestAnimationFrame(mapLoop); } requestAnimationFrame(mapLoop);
 
     function mockTick() {
       if(backendConnected) return;
@@ -1511,6 +1741,65 @@
       await loadInitialData();
       setInterval(mockTick, 10000);
       switchTab('now');
+
+    // Voice setup
+    let recognition = null;
+    let synthesis = window.speechSynthesis;
+    let preferVoice = false;
+    let isSpeaking = false;
+    function initVoice() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return;
+      recognition = new SpeechRecognition();
+      recognition.continuous = false; recognition.interimResults = true; recognition.lang = 'en-US';
+      recognition.onstart = () => { document.getElementById('voice-btn')?.classList.add('listening'); showVoiceOverlay(); };
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results).map(r => r[0].transcript).join('');
+        const interimEl = document.getElementById('voice-interim'); if (interimEl) interimEl.textContent = transcript;
+        if (event.results[event.results.length - 1].isFinal) { document.getElementById('chat-input').value = transcript; document.getElementById('chat-input').style.height = 'auto'; }
+      };
+      recognition.onend = () => {
+        document.getElementById('voice-btn')?.classList.remove('listening'); hideVoiceOverlay();
+        const input = document.getElementById('chat-input');
+        if (input.value.trim()) { window.voiceTriggered = true; handleSend(); }
+      };
+      recognition.onerror = () => { document.getElementById('voice-btn')?.classList.remove('listening'); hideVoiceOverlay(); };
+    }
+    let voiceActive = false;
+    function startVoice() {
+      if (!recognition) return;
+      synthesis.cancel();
+      try { recognition.start(); voiceActive = true; } catch(e) {}
+    }
+    function stopVoice() {
+      if (!recognition || !voiceActive) return;
+      try { recognition.stop(); voiceActive = false; } catch(e) {}
+    }
+    function showVoiceOverlay() {
+      const overlay = document.createElement('div'); overlay.id = 'voice-overlay'; overlay.className = 'voice-overlay'; overlay.style.position = 'absolute'; overlay.style.zIndex='100'; overlay.innerHTML = `<div class="voice-wave"><span></span><span></span><span></span><span></span><span></span></div><div id="voice-interim" style="font-size:13px;color:var(--muted);margin-top:8px;min-height:20px">Listening...</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Speak now — release to send</div>`;
+      document.querySelector('.panel.active')?.appendChild(overlay);
+    }
+    function hideVoiceOverlay() { document.getElementById('voice-overlay')?.remove(); }
+    function speakResponse(text) {
+      if (!synthesis || !preferVoice) return;
+      synthesis.cancel();
+      const clean = text.replace(/\*\*(.*?)\*\*/g, '$1').replace(/[*_`]/g, '');
+      const utterance = new SpeechSynthesisUtterance(clean);
+      utterance.rate = 1.05; utterance.pitch = 1.0; utterance.volume = 0.9;
+      utterance.onstart = () => { document.getElementById('voice-btn')?.classList.add('speaking'); isSpeaking = true; };
+      utterance.onend = () => { document.getElementById('voice-btn')?.classList.remove('speaking'); isSpeaking = false; };
+      synthesis.speak(utterance);
+    }
+    function addVoiceToggle() {
+      const hdrRight = document.querySelector('.header-right');
+      if (!hdrRight) return;
+      const toggle = document.createElement('button'); toggle.id = 'voice-toggle'; toggle.className = 'ws-pill pill'; toggle.style.cursor = 'pointer'; toggle.innerHTML = '🔇 Voice';
+      toggle.onclick = () => { preferVoice = !preferVoice; toggle.innerHTML = preferVoice ? '🔊 Voice' : '🔇 Voice'; if(preferVoice) speakResponse('Voice responses enabled.'); };
+      hdrRight.insertBefore(toggle, hdrRight.firstChild);
+    }
+    initVoice();
+    startMatchClock();
+    addVoiceToggle();
     })();
 
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
@@ -1534,39 +1823,34 @@
         var mime = file.type || 'image/jpeg';
 
         // Switch to Assistant tab and show status
-        switchTab('assistant');
-        var chatLog = document.getElementById('chat-log');
+        switchTab('chat');
+        var chatLog = document.getElementById('chat-messages');
         var userMsg = document.createElement('div');
         userMsg.className = 'msg user';
         userMsg.innerHTML = '<div class="msg-bubble user-bubble">📷 Analyzing photo for crowd density...</div><div class="msg-time">' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) + '</div>';
         chatLog.appendChild(userMsg);
         chatLog.scrollTop = chatLog.scrollHeight;
 
-        fetch(BACKEND_URL + '/api/chat/vision', {
+        fetch(BACKEND_URL + '/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: base64, mimeType: mime, section: window.userSection || null })
+          body: JSON.stringify({ image: { data: base64, mimeType: mime, zoneId: null }, section: window.userSection || null })
         })
         .then(function(r) { return r.json(); })
         .then(function(data) {
           var botMsg = document.createElement('div');
-          botMsg.className = 'msg bot';
-          var badge = '';
-          if (data.vision) {
-            var lvl = data.vision.crowdLevel || 'unknown';
-            var cls = (lvl === 'busy' || lvl === 'packed') ? 'busy' : lvl === 'moderate' ? 'moderate' : '';
-            badge = '<div class="vision-badge ' + cls + '">👁️ ' + lvl.toUpperCase() + (data.vision.estimatedWait ? ' • ~' + data.vision.estimatedWait + ' min' : '') + '</div>';
+          botMsg.className = 'msg bot-wrap';
+          var html = '<div class="msg-bot">' + data.reply;
+          if (data.visionData && data.visionData.estimatedWait) {
+             const vd = data.visionData;
+             const color = vd.estimatedCapacity < 0.4 ? 'var(--accent)' : vd.estimatedCapacity < 0.7 ? 'var(--warn)' : 'var(--danger)';
+             html += `<div class="vision-result" role="status"><div class="vision-row"><div class="vision-stat" style="flex:1"><div class="vision-label">People spotted</div><div class="vision-val" style="color:${color}">${vd.crowdCount || '~'}</div></div><div class="vision-stat" style="flex:1"><div class="vision-label">Est. wait</div><div class="vision-val" style="color:${color}">${vd.estimatedWait}m</div></div><div class="vision-stat"><div class="vision-label">Confidence</div><div class="vision-val" style="color:var(--muted);font-size:13px">${vd.confidence}</div></div></div><div class="vision-bar"><div class="vision-bar-fill" style="width:${Math.round((vd.estimatedCapacity||0)*100)}%;background:${color}"></div></div></div>`;
           }
-          botMsg.innerHTML = '<div class="msg-bubble bot-bubble">' + formatReply(data.reply) + badge + '</div><div class="msg-time">' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) + '</div>';
+          html += '</div>';
+          botMsg.innerHTML = html;
           chatLog.appendChild(botMsg);
           chatLog.scrollTop = chatLog.scrollHeight;
-
-          // Speak the result
-          if (window.speechSynthesis && data.reply) {
-            var u = new SpeechSynthesisUtterance(data.reply.replace(/\*\*/g, ''));
-            u.rate = 1.1;
-            speechSynthesis.speak(u);
-          }
+          if (window.preferVoice) speakResponse(data.reply);
         })
         .catch(function() {
           var errMsg = document.createElement('div');
@@ -1580,44 +1864,6 @@
       e.target.value = '';
     });
 
-    // ============================================================
-    // VOICE — Speech-to-Text + Text-to-Speech
-    // ============================================================
-    var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-    var voiceRec = null;
-    var voiceActive = false;
-
-    if (SpeechRec) {
-      voiceRec = new SpeechRec();
-      voiceRec.continuous = false;
-      voiceRec.interimResults = false;
-      voiceRec.lang = 'en-US';
-
-      voiceRec.onresult = function(ev) {
-        var text = ev.results[0][0].transcript;
-        document.getElementById('chat-input').value = text;
-        document.getElementById('send-btn').click();
-      };
-      voiceRec.onend = function() {
-        voiceActive = false;
-        document.getElementById('mic-btn').classList.remove('recording');
-      };
-      voiceRec.onerror = function() {
-        voiceActive = false;
-        document.getElementById('mic-btn').classList.remove('recording');
-      };
-    }
-
-    document.getElementById('mic-btn').addEventListener('click', function() {
-      if (!voiceRec) { alert('Voice not supported in this browser. Use Chrome or Edge.'); return; }
-      if (voiceActive) {
-        voiceRec.stop();
-      } else {
-        voiceRec.start();
-        voiceActive = true;
-        this.classList.add('recording');
-      }
-    });
   </script>
 </body>
 </html>

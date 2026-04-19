@@ -198,38 +198,64 @@ function localFallback(message, zones, history = [], explicitSection = null) {
   return `I have live data on **${zones.length} venue zones** right now. Ask me about food queues, gate wait times, restrooms, parking, or how to find your seat! 🏟️`;
 }
 
-module.exports = { chat, generateAlert, localFallback, analyzeImage };
+module.exports = { chat, generateAlert, localFallback, analyseQueuePhoto };
 
 /**
- * Analyze an image using Gemini 2.0 Flash multimodal vision.
- * Fans take a photo of a queue and the AI estimates crowd density.
+ * Analyse a crowd photo using Gemini 2.0 Flash multimodal capabilities.
+ * Estimates crowd size, wait time, and zone congestion from an image.
+ * Updates the relevant zone's capacity in Firebase if zoneId provided.
  *
- * @param {string} base64Image - base64-encoded image data
- * @param {string} mimeType - 'image/jpeg' or 'image/png'
- * @param {Array} zones - current live zone data for context
- * @param {string|null} userSection - user's current section
- * @returns {Promise<{reply: string, estimatedWait: number|null, crowdLevel: string}>}
+ * @param {string} base64Image - base64-encoded image data (no data: prefix)
+ * @param {string} mimeType - image MIME type (e.g. 'image/jpeg')
+ * @param {Zone[]} zones - current zone data for context
+ * @param {string|null} zoneId - optional zone to update after analysis
+ * @returns {Promise<{analysis: string, estimatedWait: number|null, estimatedCapacity: number|null, crowdCount: number|null}>}
  */
-async function analyzeImage(base64Image, mimeType, zones, userSection) {
-  const zoneCtx = zones
-    .map(z => `${z.name} (${z.type}): ${z.wait}min wait, ${Math.round(z.capacity * 100)}% full`)
-    .join('\n');
-
+async function analyseQueuePhoto(base64Image, mimeType, zones, zoneId = null) {
   const model = getClient().getGenerativeModel({
-    model: 'gemini-2.0-flash',
-    systemInstruction: `You are VenueIQ's crowd vision AI. Analyze photos from stadium fans.
-Estimate: number of people, crowd density (empty/light/moderate/busy/packed), wait time.
-Respond ONLY with valid JSON (no markdown fencing):
-{"reply":"2-3 sentence analysis","estimatedWait":<number>,"crowdLevel":"<density>"}`,
-    generationConfig: { maxOutputTokens: 250, temperature: 0.5 },
+    model: 'gemini-2.0-flash-exp',
+    generationConfig: { maxOutputTokens: 400, temperature: 0.3 }
   });
 
+  const zoneContext = zones.map(z => `${z.name}: currently ${z.wait} min wait`).join(', ');
+
+  const prompt = `You are a crowd intelligence system for a live sports stadium. Analyse this photo.
+
+Current venue context: ${zoneContext}
+
+Tasks:
+1. Count or estimate the number of people visible (give a specific number or range)
+2. Estimate the wait time for this queue in minutes (based on queue length and density)
+3. Estimate the capacity percentage (0.0 to 1.0) where 1.0 means completely jammed
+4. Identify what type of area this is (food court, gate, restroom, etc.) if visible
+
+Respond ONLY with valid JSON (no markdown, no backticks):
+{
+  "crowdCount": <number or null>,
+  "estimatedWait": <number in minutes>,
+  "estimatedCapacity": <float 0.0-1.0>,
+  "areaType": "<food|gate|restroom|general>",
+  "analysis": "<2 sentence natural language summary for the fan>",
+  "confidence": "<high|medium|low>"
+}`;
+
   const result = await model.generateContent([
-    { text: `Photo from a fan${userSection ? ` in section ${userSection}` : ''}.\nLive data:\n${zoneCtx}\n\nAnalyze the crowd.` },
-    { inlineData: { mimeType: mimeType || 'image/jpeg', data: base64Image } },
+    { inlineData: { mimeType, data: base64Image } },
+    { text: prompt }
   ]);
 
-  const raw = result.response.text().replace(/```json|```/g, '').trim();
-  try { return JSON.parse(raw); }
-  catch { return { reply: raw, estimatedWait: null, crowdLevel: 'unknown' }; }
+  const text = result.response.text().replace(/```json|```/g, '').trim();
+  const parsed = JSON.parse(text);
+
+  // If we know the zone, update Firebase with the vision-derived capacity
+  if (zoneId && parsed.estimatedCapacity !== null && parsed.confidence !== 'low') {
+    const { updateZone } = require('./firebase');
+    await updateZone(zoneId, {
+      capacity: parsed.estimatedCapacity,
+      wait: parsed.estimatedWait || Math.round(parsed.estimatedCapacity * 22),
+      lastVisionUpdate: Date.now(),
+    });
+  }
+
+  return parsed;
 }
