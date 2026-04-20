@@ -26,27 +26,27 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     
     :root {
-      --bg:        #07080f;
-      --surface:   #0f1018;
-      --surface2:  #161720;
-      --surface3:  #1d1e2c;
-      --border:    rgba(255,255,255,0.07);
-      --border2:   rgba(255,255,255,0.13);
-      --accent:    #39d98a;
-      --accent2:   #7c6af7;
-      --warn:      #f5a623;
-      --danger:    #f26464;
-      --text:      #eeeef2;
-      --muted:     #6b6e85;
-      --mono:      'Space Mono', monospace;
-      --sans:      'DM Sans', sans-serif;
+      --bg:     #07080f;
+      --s1:     #0f1018;
+      --s2:     #161720;
+      --s3:     #1d1e2c;
+      --b1:     rgba(255,255,255,0.07);
+      --b2:     rgba(255,255,255,0.13);
+      --g:      #39d98a;
+      --p:      #7c6af7;
+      --w:      #f5a623;
+      --r:      #f26464;
+      --t:      #eeeef2;
+      --m:      #6b6e85;
+      --mono:   'Space Mono', monospace;
+      --sans:   'DM Sans', sans-serif;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
     html, body {
       height: 100%;
       background: var(--bg);
-      color: var(--text);
+      color: var(--t);
       font-family: var(--sans);
       overflow: hidden;
       -webkit-font-smoothing: antialiased;
@@ -54,7 +54,7 @@
 
     /* Accessibility Focus */
     a:focus-visible, button:focus-visible, textarea:focus-visible, input:focus-visible {
-      outline: 2px solid var(--accent2);
+      outline: 2px solid var(--p);
       outline-offset: 2px;
     }
     
@@ -66,6 +66,15 @@
       }
     }
 
+    
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+        .demo-btn { margin: 14px 14px 0; padding: 12px 16px; background: rgba(124,106,247,0.08); border: 1px dashed rgba(124,106,247,0.35); border-radius: 12px; color: var(--p); font-size: 12px; font-weight: 500; cursor: pointer; width: calc(100% - 28px); display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--sans); transition: background 0.2s, border-color 0.2s; }
+    .demo-btn:hover { background: rgba(124,106,247,0.14); border-color: rgba(124,106,247,0.5); }
+    .demo-btn:active { transform: scale(0.98); }
     /* APP SHELL */
     #app {
       display: flex;
@@ -73,8 +82,8 @@
       height: 100%;
       max-width: 480px;
       margin: 0 auto;
-      border-left: 1px solid var(--border);
-      border-right: 1px solid var(--border);
+      border-left: 1px solid var(--b1);
+      border-right: 1px solid var(--b1);
       position: relative;
     }
     @media (max-width: 480px) {
@@ -82,81 +91,51 @@
     }
 
     /* HEADER */
-    .header {
+    .hdr {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 18px 20px 14px;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--b1);
+      background: var(--s1);
       flex-shrink: 0;
     }
-    .header-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      text-decoration: none;
-    }
-    .back-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      width: 20px;
-      height: 20px;
-    }
-    .back-btn svg {
-      stroke: var(--muted);
-      width: 20px;
-      height: 20px;
-    }
-    .header-logo {
+    .logo {
       font-family: var(--mono);
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
-      color: var(--text);
-      display: flex;
-      align-items: center;
+      letter-spacing: -0.03em;
+      text-decoration: none;
+      color: var(--t);
     }
-    .header-logo span { color: var(--accent); }
-    .header-right {
+    .logo-iq { color: var(--g); }
+    .hdr-right {
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .pill {
+    .hdr-pill {
       display: flex;
       align-items: center;
-      font-family: var(--mono);
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
       font-size: 10px;
-      font-weight: 700;
-      border-radius: 12px;
-      padding: 4px 8px;
+      font-family: var(--mono);
     }
-    .ws-pill {
-      background: rgba(124,106,247,0.12);
-      border: 1px solid rgba(124,106,247,0.2);
-      color: var(--accent2);
-    }
-    .live-pill {
-      background: rgba(57,217,138,0.1);
-      border: 1px solid rgba(57,217,138,0.2);
-      color: var(--accent);
-      gap: 6px;
-    }
-    .live-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      animation: blink 1.5s infinite ease;
-    }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .hdr-pill-ws   { background: rgba(124,106,247,0.12); border: 1px solid rgba(124,106,247,0.2); color: var(--p); }
+    .hdr-pill-live { background: rgba(57,217,138,0.10);  border: 1px solid rgba(57,217,138,0.2);  color: var(--g); }
+    .hdr-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .hdr-clock { text-align: right; }
+    .hdr-clock-min   { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--t); line-height: 1; }
+    .hdr-clock-phase { font-size: 9px; color: var(--m); letter-spacing: 0.06em; text-transform: uppercase; }
 
     /* TAB BAR */
     .tab-bar {
       display: flex;
       height: 44px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--b1);
       flex-shrink: 0;
       background: transparent;
       position: relative;
@@ -168,7 +147,7 @@
       left: var(--tab-indicator-left, 0);
       width: var(--tab-indicator-width, 20%);
       height: 2px;
-      background: var(--accent);
+      background: var(--g);
       border-radius: 2px 2px 0 0;
       transition: left 0.2s ease, width 0.2s ease;
       transform: translateX(12.5%); /* center the active indicator 50% width inside the tab */
@@ -181,14 +160,14 @@
       gap: 4px;
       background: none;
       border: none;
-      color: var(--muted);
+      color: var(--m);
       font-family: var(--sans);
       font-size: 11px;
       font-weight: 500;
       cursor: pointer;
       position: relative;
     }
-    .tab.active { color: var(--text); }
+    .tab.active { color: var(--t); }
     .tab-icon { font-size: 13px; }
 
     /* PANELS */
@@ -217,63 +196,40 @@
     .panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
 
     /* NOW TAB */
-    .now-header {
-      padding: 16px 20px;
-    }
-    .now-location {
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--accent);
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-    }
-    .now-location-change { color: var(--muted); font-size: 10px; }
-    .now-subtitle { font-size: 11px; color: var(--muted); }
+    .now-header { padding: 16px 20px; }
+    .section-prompt { margin: 12px 14px 0; background: rgba(124,106,247,0.07); border: 1px solid rgba(124,106,247,0.2); border-radius: 12px; padding: 11px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+    .section-prompt-text { font-size: 12px; color: var(--p); line-height: 1.4; }
+    .section-prompt-text small { display: block; font-size: 10px; color: var(--m); margin-top: 2px; }
+    .section-set-btn { font-size: 11px; font-weight: 600; color: var(--p); background: rgba(124,106,247,0.15); border: 1px solid rgba(124,106,247,0.3); border-radius: 6px; padding: 5px 10px; cursor: pointer; font-family: var(--sans); white-space: nowrap; flex-shrink: 0; }
+    .section-badge { display: flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 11px; font-family: var(--mono); color: var(--g); cursor: pointer; }
+    .section-badge-change { color: var(--m); cursor: pointer; }
+    .section-badge-change:hover { color: var(--t); }
     
-    .now-cards {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 0 20px 16px;
-    }
-    .now-card {
-      width: 100%;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      min-height: 68px;
-    }
-    .now-card-left {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .now-card-icon { font-size: 22px; }
-    .now-card-body { display: flex; flex-direction: column; gap: 2px; }
-    .now-card-label { font-size: 11px; color: var(--text); font-weight: 500; margin-bottom: 2px; }
-    .now-card-name { font-size: 13px; color: var(--text); }
-    .now-card-trend { font-size: 11px; color: var(--muted); }
-    .now-card-trend .trend-danger { color: var(--danger); }
-    .now-card-trend .trend-accent { color: var(--accent); }
-    
-    .now-card-right {
-      text-align: right;
-    }
-    .now-card-wait {
-      font-family: var(--mono);
-      font-size: 22px;
-      font-weight: 700;
-    }
-    .now-card-wait .unit { font-size: 11px; font-weight: 400; opacity: 0.6; font-family: var(--sans); }
-    .now-footer { font-size: 11px; color: var(--muted); text-align: center; padding-bottom: 20px; }
+    .goal-cards { display: flex; flex-direction: column; gap: 12px; padding: 16px 14px 4px; }
+    .goal-card { display: flex; align-items: center; gap: 0; background: var(--s2); border: 1px solid var(--b1); border-radius: 14px; overflow: hidden; cursor: pointer; transition: border-color 0.18s, transform 0.12s; min-height: 64px; animation: cardIn 0.3s cubic-bezier(0.22,1,0.36,1) both; }
+    .goal-card:nth-child(1) { animation-delay: 0.05s; }
+    .goal-card:nth-child(2) { animation-delay: 0.10s; }
+    .goal-card:nth-child(3) { animation-delay: 0.15s; }
+    .goal-card:hover { border-color: var(--b2); transform: translateY(-1px); }
+    .goal-card:active { transform: scale(0.98); }
+    .goal-accent { width: 3px; align-self: stretch; flex-shrink: 0; }
+    .goal-accent--food { background: var(--g); }
+    .goal-accent--exit { background: var(--p); }
+    .goal-accent--seat { background: var(--w); }
+    .goal-icon { width: 48px; height: 64px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .goal-body { flex: 1; padding: 12px 4px; min-width: 0; }
+    .goal-title { font-size: 14px; font-weight: 600; color: var(--t); margin-bottom: 2px; }
+    .goal-sub   { font-size: 11px; color: var(--m); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--mono); }
+    .goal-stat { padding: 0 10px; text-align: right; flex-shrink: 0; }
+    .goal-wait { font-family: var(--mono); font-size: 22px; font-weight: 700; line-height: 1; }
+    .goal-unit { font-size: 10px; font-weight: 400; opacity: 0.55; margin-left: 1px; }
+    .goal-stat-label { font-size: 9px; color: var(--m); letter-spacing: 0.05em; margin-top: 2px; text-transform: uppercase; font-family: var(--mono); }
+    .goal-arrow { font-size: 18px; color: var(--b2); padding-right: 12px; flex-shrink: 0; align-self: center; }
+
+    .stats-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 12px 14px 0; }
+    .stat-chip { background: var(--s2); border: 1px solid var(--b1); border-radius: 10px; padding: 9px 8px; text-align: center; }
+    .stat-val { font-family: var(--mono); font-size: 16px; font-weight: 700; line-height: 1; }
+    .stat-lbl { font-size: 9px; color: var(--m); margin-top: 3px; letter-spacing: 0.05em; text-transform: uppercase; font-family: var(--mono); }
 
     /* CHAT PANEL */
     .chat-messages {
@@ -298,12 +254,12 @@
       margin-bottom: 8px;
     }
     .welcome-title { font-family: var(--sans); font-size: 14px; font-weight: 600; margin-bottom: 6px; }
-    .welcome-text { font-family: var(--sans); font-size: 12.5px; color: var(--muted); font-weight: 400; line-height: 1.5; }
-    .welcome-text strong { color: var(--accent); font-weight: inherit; }
+    .welcome-text { font-family: var(--sans); font-size: 12.5px; color: var(--m); font-weight: 400; line-height: 1.5; }
+    .welcome-text strong { color: var(--g); font-weight: inherit; }
 
     .msg-user-wrap { align-self: flex-end; max-width: 82%; display: flex; flex-direction: column; align-items: flex-end; }
     .msg-user {
-      background: var(--accent);
+      background: var(--g);
       color: #07080f;
       font-family: var(--sans);
       font-size: 13px;
@@ -315,9 +271,9 @@
     }
     .msg-bot-wrap { align-self: flex-start; max-width: 82%; display: flex; flex-direction: column; align-items: flex-start; width: 100%; }
     .msg-bot {
-      background: var(--surface2);
-      border: 1px solid var(--border2);
-      color: var(--text);
+      background: var(--s2);
+      border: 1px solid var(--b2);
+      color: var(--t);
       font-family: var(--sans);
       font-size: 13px;
       font-weight: 400;
@@ -326,13 +282,13 @@
       padding: 10px 14px;
       line-height: 1.45;
     }
-    .msg-bot strong { color: var(--accent); font-weight: 600; }
+    .msg-bot strong { color: var(--g); font-weight: 600; }
     
-    .msg-timestamp { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 4px; }
+    .msg-timestamp { font-family: var(--mono); font-size: 10px; color: var(--m); margin-top: 4px; }
     
     .typing {
-      background: var(--surface2);
-      border: 1px solid var(--border2);
+      background: var(--s2);
+      border: 1px solid var(--b2);
       border-radius: 18px;
       border-bottom-left-radius: 5px;
       padding: 12px 14px;
@@ -345,7 +301,7 @@
     .typing span {
       width: 5px; height: 5px;
       border-radius: 50%;
-      background: var(--muted);
+      background: var(--m);
       animation: typingBounce 1.2s ease infinite;
     }
     .typing span:nth-child(2) { animation-delay: 0.18s; }
@@ -363,52 +319,76 @@
       margin-top: 8px;
       width: 100%;
     }
-    .zone-card {
-      background: var(--surface3);
-      border: 1px solid var(--border);
+        .zone-card { background: var(--s2); border: 1px solid var(--b1); border-radius: 12px; overflow: hidden; display: flex; cursor: pointer; animation: cardIn 0.28s cubic-bezier(0.22,1,0.36,1) both; transition: border-color 0.18s; padding: 0; min-height: auto; }
+    .zone-card:hover { border-color: var(--b2); }
+    .zone-left-accent { width: 3px; flex-shrink: 0; }
+    .zone-card-body { flex: 1; padding: 10px 12px 9px; }
+    .zone-type-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .zone-icon { font-size: 13px; }
+    .zone-type-badge { font-size: 9px; font-family: var(--mono); padding: 2px 6px; border-radius: 4px; letter-spacing: 0.04em; }
+    .badge-food { background: rgba(57,217,138,0.10); color: var(--g); }
+    .badge-gate { background: rgba(124,106,247,0.12); color: var(--p); }
+    .badge-rest { background: rgba(245,166,35,0.10); color: var(--w); }
+    .zone-name { font-size: 11px; color: var(--m); margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--sans); }
+    .zone-wait-row { display: flex; align-items: baseline; gap: 2px; margin-bottom: 6px; }
+    .zone-wait-num { font-family: var(--mono); font-size: 22px; font-weight: 700; line-height: 1; }
+    .zone-wait-unit { font-size: 10px; opacity: 0.55; }
+    .zone-bar { height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; }
+    .zone-card.updated { animation: zoneFlash 0.6s ease forwards; }
+    @keyframes zoneFlash { 0%   { border-color: var(--g); } 100% { border-color: var(--b1); } }
+
+    .zone-card-old {
+      background: var(--s3);
+      border: 1px solid var(--b1);
       border-radius: 12px;
       padding: 10px 12px;
       cursor: pointer;
       min-height: 68px;
     }
-    .zone-card:hover { border-color: var(--border2); }
+    .zone-card:hover { border-color: var(--b2); }
     @keyframes flash {
-      0%   { border-color: var(--accent); }
-      100% { border-color: var(--border); }
+      0%   { border-color: var(--g); }
+      100% { border-color: var(--b1); }
     }
     .zone-card.flash { animation: flash 0.6s ease; }
-    .zone-card-name { font-family: var(--sans); font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+    .zone-card-name { font-family: var(--sans); font-size: 11px; color: var(--m); margin-bottom: 2px; }
     .zone-card-wait { font-family: var(--mono); font-size: 20px; font-weight: 700; line-height: 1; margin-bottom: 6px; }
     .zone-card-wait .unit { font-size: 11px; font-weight: 400; opacity: 0.6; }
     .zone-bar-track { height: 3px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden; }
-    .zone-bar-fill { height: 100%; border-radius: 3px; }
+    .zone-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+    .zone-bar--ok   { background: var(--g); }
+    .zone-bar--warn { background: var(--w); }
+    .zone-bar--bad  { background: var(--r); }
+    .zone-card--best { border-color: rgba(57,217,138,0.25); background: rgba(57,217,138,0.04); }
+    .zone-card--best::before { content: 'Best option'; display: block; font-size: 9px; font-family: var(--mono); color: var(--g); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+
     
-    .c-ok { color: var(--accent); }
-    .bg-ok { background: var(--accent); }
-    .c-warn { color: var(--warn); }
-    .bg-warn { background: var(--warn); }
-    .c-danger { color: var(--danger); }
-    .bg-danger { background: var(--danger); }
+    .c-ok { color: var(--g); }
+    .bg-ok { background: var(--g); }
+    .c-warn { color: var(--w); }
+    .bg-warn { background: var(--w); }
+    .c-danger { color: var(--r); }
+    .bg-danger { background: var(--r); }
 
     /* INLINE SECTION PICKER */
     .section-picker {
-      background: var(--surface3);
-      border: 1px solid var(--border);
+      background: var(--s3);
+      border: 1px solid var(--b1);
       border-radius: 12px;
       padding: 14px;
       margin-top: 8px;
       width: 100%;
     }
-    .sp-title { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; }
+    .sp-title { font-family: var(--mono); font-size: 10px; color: var(--m); text-transform: uppercase; margin-bottom: 12px; }
     .sp-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-    .sp-label { font-size: 12px; color: var(--text); }
+    .sp-label { font-size: 12px; color: var(--t); }
     .sp-btn-group { display: flex; gap: 6px; }
     .sp-btn {
       width: 34px; height: 34px;
       border-radius: 8px;
-      background: var(--surface3);
-      border: 1px solid var(--border);
-      color: var(--text);
+      background: var(--s3);
+      border: 1px solid var(--b1);
+      color: var(--t);
       font-family: var(--mono);
       font-size: 13px;
       font-weight: 700;
@@ -418,28 +398,23 @@
       cursor: pointer;
     }
     .sp-btn:hover {
-      border-color: var(--accent);
+      border-color: var(--g);
       background: rgba(57,217,138,0.09);
-      color: var(--accent);
+      color: var(--g);
     }
 
     /* QUICK REPLIES */
     .quick-replies {
-      display: flex;
-      gap: 8px;
-      padding: 10px 20px;
-      overflow-x: auto;
-      flex-shrink: 0;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none; /* Firefox */
+      display: flex; gap: 7px; padding: 6px 14px; overflow-x: auto; flex-shrink: 0; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%); mask-image: linear-gradient(to right, black 85%, transparent 100%);
     }
     .quick-replies::-webkit-scrollbar { display: none; }
     .qr {
-      background: var(--surface2);
-      border: 1px solid var(--border2);
+      background: var(--s2);
+      border: 1px solid var(--b2);
       border-radius: 20px;
       padding: 7px 14px;
-      color: var(--text);
+      color: var(--t);
       font-family: var(--sans);
       font-size: 11.5px;
       white-space: nowrap;
@@ -453,7 +428,7 @@
     .qr:hover {
       border-color: rgba(57,217,138,0.35);
       background: rgba(57,217,138,0.07);
-      color: var(--accent);
+      color: var(--g);
     }
 
     /* INPUT ROW */
@@ -462,16 +437,16 @@
       align-items: flex-end;
       gap: 12px;
       padding: 10px 16px calc(20px + var(--safe-bottom));
-      border-top: 1px solid var(--border);
+      border-top: 1px solid var(--b1);
       background: var(--bg);
       flex-shrink: 0;
     }
     .chat-input {
       flex: 1;
-      background: var(--surface2);
-      border: 1px solid var(--border2);
+      background: var(--s2);
+      border: 1px solid var(--b2);
       border-radius: 24px;
-      color: var(--text);
+      color: var(--t);
       font-family: var(--sans);
       font-size: 13px;
       padding: 12px 16px;
@@ -480,15 +455,15 @@
       resize: none;
       outline: none;
     }
-    .chat-input::placeholder { color: var(--muted); }
+    .chat-input::placeholder { color: var(--m); }
     .chat-input:focus {
-      border-color: var(--accent2);
+      border-color: var(--p);
       box-shadow: 0 0 0 3px rgba(124,106,247,0.12);
     }
     .send-btn {
       width: 40px; height: 40px;
       border-radius: 50%;
-      background: var(--accent);
+      background: var(--g);
       border: none;
       display: flex;
       align-items: center;
@@ -499,25 +474,16 @@
     .send-btn:active { transform: scale(0.92); }
     .send-btn svg { fill: #07080f; width: 16px; height: 16px; }
 
-    /* CAMERA + MIC BUTTONS */
-    .icon-btn {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: var(--surface3); border: 1px solid var(--border2);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; flex-shrink: 0; color: var(--muted); transition: all 0.2s;
-    }
-    .icon-btn:hover { color: var(--text); border-color: var(--accent2); }
-    .icon-btn:active { transform: scale(0.9); }
-    .icon-btn.recording { color: #f26464; border-color: #f26464; animation: mic-pulse 1s infinite; }
-    .icon-btn.processing { color: var(--accent); border-color: var(--accent); }
-    @keyframes mic-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(242,100,100,0.4)} 50%{box-shadow:0 0 0 8px rgba(242,100,100,0)} }
-    .vision-badge {
-      display: inline-flex; align-items: center; gap: 6px; margin-top: 6px;
-      background: rgba(57,217,138,0.1); border: 1px solid rgba(57,217,138,0.3);
-      border-radius: 8px; padding: 4px 10px; font-size: 11px; color: var(--accent); font-family: var(--mono);
-    }
-    .vision-badge.busy { background: rgba(242,100,100,0.1); border-color: rgba(242,100,100,0.3); color: #f26464; }
-    .vision-badge.moderate { background: rgba(245,166,35,0.1); border-color: rgba(245,166,35,0.3); color: #f5a623; }
+    .camera-btn { width: 38px; height: 38px; border-radius: 10px; background: var(--s3); border: 1px solid var(--b2); color: var(--m); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: border-color 0.18s, color 0.18s; }
+    .camera-btn:hover { border-color: var(--p); color: var(--p); }
+    .voice-btn { width: 38px; height: 38px; border-radius: 10px; background: var(--s3); border: 1px solid var(--b2); color: var(--m); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.18s; position: relative; }
+    .voice-btn:hover { border-color: var(--g); color: var(--g); }
+    .voice-btn.listening { background: rgba(57,217,138,0.12); border-color: var(--g); color: var(--g); animation: voicePulse 1s ease-in-out infinite; }
+    @keyframes voicePulse { 0%,100% { box-shadow: 0 0 0 0 rgba(57,217,138,0.4); } 50% { box-shadow: 0 0 0 8px rgba(57,217,138,0); } }
+    .send-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--g); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: transform 0.12s, opacity 0.15s; }
+    .send-btn:hover  { opacity: 0.88; }
+    .send-btn:active { transform: scale(0.91); }
+    .send-btn svg { fill: #07080f; width: 16px; height: 16px; }
 
     /* MAP PANEL */
     .map-canvas-wrap {
@@ -534,37 +500,61 @@
       background: rgba(7,8,15,0.85);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      border: 1px solid var(--border);
+      border: 1px solid var(--b1);
       border-radius: 12px;
       padding: 12px;
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text); }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--t); }
     .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
     .map-zones { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-shrink: 0; }
 
     /* ALERTS PANEL */
-    .alerts-panel { padding: 20px; }
+        .alert-card { border-radius: 14px; overflow: hidden; display: flex; animation: cardIn 0.25s cubic-bezier(0.22,1,0.36,1) both; margin-bottom: 0; padding: 0; align-items: stretch; gap: 0; }
+    .alert-card:nth-child(2) { animation-delay: 0.04s; }
+    .alert-card:nth-child(3) { animation-delay: 0.08s; }
+    .alert-card:nth-child(4) { animation-delay: 0.12s; }
+    .alert-card.critical { background: rgba(242,100,100,0.06); border: 1px solid rgba(242,100,100,0.25); }
+    .alert-card.exit-alert { background: rgba(245,166,35,0.05); border: 1px solid rgba(245,166,35,0.22); }
+    .alert-card.info-alert { background: rgba(124,106,247,0.05); border: 1px solid rgba(124,106,247,0.2); }
+    .alert-card.routine { background: var(--s2); border: 1px solid var(--b1); }
+    .alert-stripe { width: 3px; flex-shrink: 0; align-self: stretch; }
+    .alert-card.critical   .alert-stripe { background: var(--r); }
+    .alert-card.exit-alert .alert-stripe { background: var(--w); }
+    .alert-card.info-alert .alert-stripe { background: var(--p); }
+    .alert-card.routine    .alert-stripe { background: var(--m); }
+    .alert-content { flex: 1; padding: 11px 13px; }
+    .alert-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 5px; }
+    .alert-icon-wrap { font-size: 14px; flex-shrink: 0; margin-top: 1px; line-height: 1; }
+    .alert-title-col { flex: 1; }
+    .alert-title { font-size: 13px; font-weight: 600; color: var(--t); line-height: 1.35; }
+    .alert-source { display: inline-block; font-size: 9px; font-family: var(--mono); letter-spacing: 0.05em; margin-top: 3px; }
+    .alert-card.critical   .alert-source { color: rgba(242,100,100,0.65); }
+    .alert-card.exit-alert .alert-source { color: rgba(245,166,35,0.65); }
+    .alert-card.info-alert .alert-source { color: rgba(124,106,247,0.65); }
+    .alert-card.routine    .alert-source { color: var(--m); }
+    .alert-time { font-size: 10px; font-family: var(--mono); color: var(--m); white-space: nowrap; flex-shrink: 0; }
+    .alert-body { font-size: 12px; color: rgba(238,238,242,0.68); line-height: 1.5; }
+    .alert-action { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 11px; font-weight: 500; padding: 5px 11px; border-radius: 7px; cursor: pointer; border: none; font-family: var(--sans); transition: opacity 0.18s; }
+    .alert-action:hover { opacity: 0.8; }
+    .alert-card.critical   .alert-action { background: rgba(242,100,100,0.12); color: var(--r); }
+    .alert-card.exit-alert .alert-action { background: rgba(245,166,35,0.12); color: var(--w); }
+    .alerts-section-title { font-size: 10px; font-family: var(--mono); color: var(--m); letter-spacing: 0.07em; text-transform: uppercase; padding: 12px 14px 6px; }
+    .alerts-section-title:first-child { padding-top: 8px; }
+    .alerts-panel { padding: 0 14px 20px; display: flex; flex-direction: column; gap: 8px; }
+
     @keyframes slideIn {
       from { opacity: 0; transform: translateY(-8px); }
       to   { opacity: 1; transform: none; }
     }
-    .alert-card {
-      border-radius: 12px;
-      padding: 14px 16px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      animation: slideIn 0.3s ease forwards;
-    }
+
     .alert-icon { font-size: 20px; flex-shrink: 0; }
     .alert-content { flex: 1; }
-    .alert-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-    .alert-body { font-size: 12px; color: var(--text); line-height: 1.5; margin-bottom: 6px; }
-    .alert-time { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+    .alert-title { font-size: 13px; font-weight: 600; color: var(--t); margin-bottom: 4px; }
+    .alert-body { font-size: 12px; color: var(--t); line-height: 1.5; margin-bottom: 6px; }
+    .alert-time { font-family: var(--mono); font-size: 10px; color: var(--m); }
     .alert-urgent { border: 1px solid rgba(242,100,100,0.3); background: rgba(242,100,100,0.05); }
     .alert-info   { border: 1px solid rgba(124,106,247,0.25); background: rgba(124,106,247,0.04); }
     .alert-exit   { border: 1px solid rgba(245,166,35,0.3); background: rgba(245,166,35,0.05); }
@@ -572,49 +562,49 @@
     /* GROUP PANEL */
     .group-panel { padding: 24px 20px; }
     .group-code-wrap { text-align: center; margin-bottom: 32px; }
-    .group-lbl { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
-    .group-code { font-family: var(--mono); font-size: 2.5rem; font-weight: 700; color: var(--accent); letter-spacing: 0.2em; }
+    .group-lbl { font-size: 11px; color: var(--m); margin-bottom: 8px; }
+    .group-code { font-family: var(--mono); font-size: 2.5rem; font-weight: 700; color: var(--g); letter-spacing: 0.2em; }
     
     .member-item {
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 12px 16px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
+      background: var(--s2);
+      border: 1px solid var(--b1);
       border-radius: 12px;
       margin-bottom: 8px;
     }
     .member-avatar {
       width: 32px; height: 32px;
       border-radius: 50%;
-      background: var(--accent2);
-      color: var(--text);
+      background: var(--p);
+      color: var(--t);
       display: flex; align-items: center; justify-content: center;
       font-weight: 600; font-size: 14px;
     }
-    .member-name { font-size: 13px; color: var(--text); flex: 1; }
+    .member-name { font-size: 13px; color: var(--t); flex: 1; }
     .member-badge {
       background: rgba(57,217,138,0.1);
-      color: var(--accent);
+      color: var(--g);
       font-family: var(--mono);
       font-size: 10px;
       padding: 4px 6px;
       border-radius: 4px;
     }
     .group-input-wrap { display: flex; gap: 8px; margin-top: 16px; }
-    .group-input { flex: 1; background: var(--surface2); border: 1px solid var(--border2); border-radius: 24px; padding: 0 16px; color: var(--text); outline: none; }
-    .group-input:focus { border-color: var(--accent2); }
+    .group-input { flex: 1; background: var(--s2); border: 1px solid var(--b2); border-radius: 24px; padding: 0 16px; color: var(--t); outline: none; }
+    .group-input:focus { border-color: var(--p); }
     .group-btn {
-      background: var(--surface3); border: 1px solid var(--border); border-radius: 24px; padding: 0 16px; color: var(--text); cursor: pointer; height: 42px; font-weight: 600;
+      background: var(--s3); border: 1px solid var(--b1); border-radius: 24px; padding: 0 16px; color: var(--t); cursor: pointer; height: 42px; font-weight: 600;
     }
-    .group-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .group-btn:hover { border-color: var(--g); color: var(--g); }
     
-    .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--m); font-size: 13px; }
 
     /* SIMULATION & EXTERNAL MAP */
     .sim-btn {
-      background: var(--danger);
+      background: var(--r);
       color: #fff;
       border: none;
       padding: 4px 8px;
@@ -627,32 +617,38 @@
     }
     @keyframes pulse-danger { 0% { box-shadow: 0 0 0 0 rgba(242,100,100,0.4); } 70% { box-shadow: 0 0 0 6px rgba(242,100,100,0); } 100% { box-shadow: 0 0 0 0 rgba(242,100,100,0); } }
 
+        .map-toggle-wrap { padding: 10px 14px 8px; display: flex; }
+    .map-toggle { display: flex; background: var(--s2); border: 1px solid var(--b2); border-radius: 10px; overflow: hidden; width: 100%; height: auto; padding: 0; }
+    .map-toggle-btn { flex: 1; padding: 8px 12px; font-size: 11px; font-weight: 500; font-family: var(--mono); letter-spacing: 0.04em; text-transform: uppercase; border: none; background: transparent; color: var(--m); cursor: pointer; transition: background 0.18s, color 0.18s; text-align: center; }
+    .map-toggle-btn.active { background: var(--g); color: #07080f; border-radius: 8px; }
+    .map-toggle-btn:not(.active):hover { color: var(--t); }
+
     .map-controls {
       display: flex;
       padding: 10px 16px;
       gap: 10px;
-      background: var(--surface2);
-      border-bottom: 1px solid var(--border);
+      background: var(--s2);
+      border-bottom: 1px solid var(--b1);
     }
     .map-toggle {
       flex: 1;
       height: 32px;
       border-radius: 6px;
-      background: var(--surface3);
-      border: 1px solid var(--border);
-      color: var(--muted);
+      background: var(--s3);
+      border: 1px solid var(--b1);
+      color: var(--m);
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
     }
-    .map-toggle.active { background: rgba(57,217,138,0.1); color: var(--accent); border-color: var(--accent); }
+    .map-toggle.active { background: rgba(57,217,138,0.1); color: var(--g); border-color: var(--g); }
 
     .map-external-wrap {
       flex: 1;
       display: none;
       width: 100%;
-      background: var(--surface);
+      background: var(--s1);
     }
     .map-external-wrap.active { display: block; }
     .map-canvas-wrap.hidden { display: none; }
@@ -670,49 +666,67 @@
 .panel.exiting-right { display: flex; animation: slideOutRight 0.18s ease forwards; pointer-events: none; }
 
 @keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-.zone-card { opacity: 0; animation: cardIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
+    .zone-card { background: var(--s2); border: 1px solid var(--b1); border-radius: 12px; overflow: hidden; display: flex; cursor: pointer; animation: cardIn 0.28s cubic-bezier(0.22,1,0.36,1) both; transition: border-color 0.18s; padding: 0; min-height: auto; }
+    .zone-card:hover { border-color: var(--b2); }
+    .zone-left-accent { width: 3px; flex-shrink: 0; }
+    .zone-card-body { flex: 1; padding: 10px 12px 9px; }
+    .zone-type-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .zone-icon { font-size: 13px; }
+    .zone-type-badge { font-size: 9px; font-family: var(--mono); padding: 2px 6px; border-radius: 4px; letter-spacing: 0.04em; }
+    .badge-food { background: rgba(57,217,138,0.10); color: var(--g); }
+    .badge-gate { background: rgba(124,106,247,0.12); color: var(--p); }
+    .badge-rest { background: rgba(245,166,35,0.10); color: var(--w); }
+    .zone-name { font-size: 11px; color: var(--m); margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--sans); }
+    .zone-wait-row { display: flex; align-items: baseline; gap: 2px; margin-bottom: 6px; }
+    .zone-wait-num { font-family: var(--mono); font-size: 22px; font-weight: 700; line-height: 1; }
+    .zone-wait-unit { font-size: 10px; opacity: 0.55; }
+    .zone-bar { height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; }
+    .zone-card.updated { animation: zoneFlash 0.6s ease forwards; }
+    @keyframes zoneFlash { 0%   { border-color: var(--g); } 100% { border-color: var(--b1); } }
 
-.alert-card.new-alert { animation: alertSlideIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards; border-color: var(--accent2); }
+    .zone-card-old { opacity: 0; animation: cardIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+.alert-card.new-alert { animation: alertSlideIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards; border-color: var(--p); }
 @keyframes alertSlideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
 
-.tab[data-badge]::after { content: attr(data-badge); position: absolute; top: 4px; right: 10px; width: 7px; height: 7px; border-radius: 50%; background: var(--danger); font-size: 0; }
+.tab[data-badge]::after { content: attr(data-badge); position: absolute; top: 4px; right: 10px; width: 7px; height: 7px; border-radius: 50%; background: var(--r); font-size: 0; }
 
 /* SPARKLINE */
 .sparkline { width: 100%; height: 28px; display: block; margin-top: 8px; }
 
 /* MATCH CLOCK */
 .match-clock-wrap { display: flex; flex-direction: column; align-items: flex-end; font-family: var(--mono); }
-.clock-min { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1; }
-.clock-label { font-size: 9px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+.clock-min { font-size: 14px; font-weight: 700; color: var(--t); line-height: 1; }
+.clock-label { font-size: 9px; color: var(--m); letter-spacing: 0.06em; text-transform: uppercase; }
 
-.clock-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 10px; margin: 8px 16px; border: 1px solid var(--border2); background: var(--surface2); }
-.clock-badge .clock-min { font-size: 22px; color: var(--accent); }
-.clock-badge .clock-phase { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
+.clock-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 10px; margin: 8px 16px; border: 1px solid var(--b2); background: var(--s2); }
+.clock-badge .clock-min { font-size: 22px; color: var(--g); }
+.clock-badge .clock-phase { font-size: 11px; color: var(--m); letter-spacing: 0.06em; }
 .clock-badge.phase-halftime { border-color: rgba(245,166,35,0.4); background: rgba(245,166,35,0.07); }
-.clock-badge.phase-halftime .clock-min { color: var(--warn); }
+.clock-badge.phase-halftime .clock-min { color: var(--w); }
 
 .phase-banner { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; font-size: 12.5px; font-weight: 500; animation: slideInRight 0.3s ease; flex-shrink: 0; }
 .phase-banner--warn { background: rgba(245,166,35,0.12); color: #e8960a; border-bottom: 1px solid rgba(245,166,35,0.25); }
-.phase-banner--info { background: rgba(124,106,247,0.1); color: var(--accent2); border-bottom: 1px solid rgba(124,106,247,0.2); }
+.phase-banner--info { background: rgba(124,106,247,0.1); color: var(--p); border-bottom: 1px solid rgba(124,106,247,0.2); }
 .phase-banner button { background: none; border: none; font-size: 18px; cursor: pointer; opacity: 0.6; color: inherit; padding: 0 4px; }
 
 /* VISION RESULT */
-.vision-result { margin-top: 8px; background: var(--surface3); border: 1px solid var(--border2); border-radius: 12px; padding: 10px 14px; animation: cardIn 0.3s ease; }
+.vision-result { margin-top: 8px; background: var(--s3); border: 1px solid var(--b2); border-radius: 12px; padding: 10px 14px; animation: cardIn 0.3s ease; }
 .vision-row { display: flex; gap: 16px; margin-bottom: 8px; }
-.vision-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+.vision-label { font-size: 10px; color: var(--m); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
 .vision-val { font-family: var(--mono); font-size: 18px; font-weight: 700; line-height: 1; }
 .vision-bar { height: 4px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; }
 .vision-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
 
 /* VOICE */
-.voice-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--surface3); border: 1px solid var(--border2); color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.18s; position: relative; }
-.voice-btn:hover { border-color: var(--accent2); color: var(--accent2); }
-.voice-btn.listening { background: rgba(57,217,138,0.12); border-color: var(--accent); color: var(--accent); animation: voicePulse 1s ease-in-out infinite; }
-.voice-btn.speaking { background: rgba(124,106,247,0.12); border-color: var(--accent2); color: var(--accent2); }
+.voice-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--s3); border: 1px solid var(--b2); color: var(--m); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.18s; position: relative; }
+.voice-btn:hover { border-color: var(--p); color: var(--p); }
+.voice-btn.listening { background: rgba(57,217,138,0.12); border-color: var(--g); color: var(--g); animation: voicePulse 1s ease-in-out infinite; }
+.voice-btn.speaking { background: rgba(124,106,247,0.12); border-color: var(--p); color: var(--p); }
 @keyframes voicePulse { 0%,100% { box-shadow: 0 0 0 0 rgba(57,217,138,0.4); } 50% { box-shadow: 0 0 0 8px rgba(57,217,138,0); } }
-.voice-overlay { position: absolute; bottom: 80px; left: 16px; right: 16px; background: var(--surface2); border: 1px solid var(--accent); border-radius: 16px; padding: 16px; text-align: center; animation: cardIn 0.2s ease; z-index: 10; }
+.voice-overlay { position: absolute; bottom: 80px; left: 16px; right: 16px; background: var(--s2); border: 1px solid var(--g); border-radius: 16px; padding: 16px; text-align: center; animation: cardIn 0.2s ease; z-index: 10; }
 .voice-wave { display: flex; align-items: center; justify-content: center; gap: 4px; height: 32px; }
-.voice-wave span { width: 3px; border-radius: 3px; background: var(--accent); animation: wave 1.2s ease-in-out infinite; }
+.voice-wave span { width: 3px; border-radius: 3px; background: var(--g); animation: wave 1.2s ease-in-out infinite; }
 .voice-wave span:nth-child(1) { animation-delay: 0s; height: 8px; }
 .voice-wave span:nth-child(2) { animation-delay: 0.1s; height: 20px; }
 .voice-wave span:nth-child(3) { animation-delay: 0.2s; height: 32px; }
@@ -723,31 +737,58 @@
 /* INTENT FRAMING */
     .intent-grid { display: flex; flex-direction: column; gap: 12px; padding: 0 20px; }
     .intent-card {
-      background: linear-gradient(145deg, var(--surface2), var(--surface3));
-      border: 1px solid var(--border);
+      background: linear-gradient(145deg, var(--s2), var(--s3));
+      border: 1px solid var(--b1);
       border-radius: 16px;
       padding: 20px;
       display: flex; align-items: center; gap: 16px;
       cursor: pointer;
       transition: transform 0.2s, border-color 0.2s;
     }
-    .intent-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .intent-card:hover { border-color: var(--g); transform: translateY(-2px); }
     .intent-emoji { font-size: 28px; }
-    .intent-text { font-size: 16px; font-weight: 600; color: var(--text); }
+    .intent-text { font-size: 16px; font-weight: 600; color: var(--t); }
   </style>
 </head>
 <body>
+  <!-- SPLASH SCREEN -->
+  <div id="splash-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #07080f; z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+    <div style="font-family: 'Space Mono', monospace; font-size: 40px; font-weight: 700; color: #eeeef2; animation: splashTrackIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;">
+      Venue<span style="color: #39d98a; animation: iqPulse 1.5s ease-in-out infinite;">IQ</span>
+    </div>
+  </div>
+  <style>
+    @keyframes splashTrackIn {
+      0% { opacity: 0; transform: scale(0.85) translateY(15px); letter-spacing: 0.15em; filter: blur(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); letter-spacing: -0.04em; filter: blur(0); }
+    }
+    @keyframes iqPulse {
+      0%, 100% { color: #39d98a; text-shadow: 0 0 0 rgba(57, 217, 138, 0); }
+      50% { color: #5efca6; text-shadow: 0 0 20px rgba(57, 217, 138, 0.7); }
+    }
+  </style>
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const splash = document.getElementById('splash-screen');
+        if (splash) {
+          splash.style.opacity = '0';
+          splash.style.visibility = 'hidden';
+          splash.style.transform = 'scale(1.1)';
+          setTimeout(() => splash.remove(), 800);
+        }
+      }, 1800); // Hold for 1.8s to show off the animation
+    });
+  </script>
+
   <div id="app">
     <!-- HEADER -->
-    <header class="header">
-      <a href="/" class="header-brand" aria-label="Back">
-        <div class="back-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <div class="header-logo"><span style="color:var(--text)">Venue</span><span>IQ</span></div>
-      </a>
-      <div class="header-right">
-        <div class="match-clock-wrap"><span class="clock-min" id="match-clock">43'</span><span class="clock-label" id="match-phase">1st Half</span></div>
-        <div class="pill ws-pill" id="ws-indicator" aria-label="WebSocket status">WS &nbsp;&nbsp;&nbsp;</div>
-        <div class="pill live-pill" id="live-indicator"><div class="live-dot" id="status-dot"></div><span id="status-text">LIVE</span></div>
+    <header class="hdr">
+      <a href="/" class="logo">Venue<span class="logo-iq">IQ</span></a>
+      <div class="hdr-right">
+        <div class="hdr-clock"><div class="hdr-clock-min" id="match-clock">43'</div><div class="hdr-clock-phase" id="match-phase">1st Half</div></div>
+        <div class="hdr-pill hdr-pill-ws" id="ws-indicator" aria-label="WebSocket status">WS</div>
+        <div class="hdr-pill hdr-pill-live" id="live-indicator"><div class="hdr-dot" id="status-dot"></div><span id="status-text">LIVE</span></div>
       </div>
     </header>
 
@@ -764,21 +805,18 @@
 
       <!-- NOW VIEW -->
       <section class="panel active" id="view-now" role="tabpanel" aria-labelledby="view-now">
-        <div class="now-header">
-          <div class="now-location" id="now-location" onclick="showOnboarding()">
-            <span>📍 Section Not Set</span>
-            <span class="now-location-change">[change]</span>
-          </div>
-          <div class="now-subtitle">Live venue snapshot</div>
-<div id="now-clock"></div>
+        <div id="now-location-container"></div>
+        <div class="goal-cards" id="now-cards"></div>
+        <div class="stats-strip" id="stats-strip">
+          <div class="stat-chip"><div class="stat-val" id="stat-best-food">--</div><div class="stat-lbl">BEST FOOD</div></div>
+          <div class="stat-chip"><div class="stat-val" id="stat-best-gate">--</div><div class="stat-lbl">BEST GATE</div></div>
+          <div class="stat-chip"><div class="stat-val" id="stat-avg-wait">--</div><div class="stat-lbl">AVG WAIT</div></div>
         </div>
-        <div class="now-cards" id="now-cards"></div>
-        <div class="now-footer">Tap any card to ask the assistant</div>
-<div style="padding: 0 1.25rem 1rem; margin-top: auto;">
-  <button id="demo-btn" onclick="triggerDemoMode()" style="width: 100%; padding: 12px; background: rgba(124,106,247,0.1); border: 1px dashed rgba(124,106,247,0.4); border-radius: 12px; color: var(--accent2); font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--sans); display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s;" aria-label="Demo: simulate halftime rush for judges">
-    ⚡ Judge Demo — Simulate Halftime Rush
-  </button>
-</div>
+        <div style="padding: 0 0 1rem; margin-top: auto;">
+          <button id="demo-btn" class="demo-btn" onclick="triggerDemoMode()">
+            ⚡ Judge Demo — Simulate Halftime Rush
+          </button>
+        </div>
       </section>
 
       <!-- CHAT VIEW -->
@@ -824,9 +862,11 @@
 
       <!-- MAP VIEW -->
       <section class="panel" id="view-map" role="tabpanel" aria-labelledby="view-map">
-        <div class="map-controls">
-          <button class="map-toggle active" id="toggle-internal" onclick="setMapMode('internal')">LIVE HEATMAP</button>
-          <button class="map-toggle" id="toggle-external" onclick="setMapMode('external')">TRANSIT MAP</button>
+        <div class="map-toggle-wrap">
+          <div class="map-toggle">
+            <button class="map-toggle-btn active" id="toggle-internal" onclick="setMapMode('internal')">LIVE HEATMAP</button>
+            <button class="map-toggle-btn" id="toggle-external" onclick="setMapMode('external')">TRANSIT MAP</button>
+          </div>
         </div>
         <div class="map-canvas-wrap" id="map-internal">
           <canvas id="venue-map"></canvas>
@@ -913,7 +953,7 @@
 
 
     // Match clock
-    const MATCH_START_TIME = Date.now() - (43 * 60 * 1000);
+    let MATCH_START_TIME = Date.now() - (43 * 60 * 1000);
     function getMatchState() {
       const elapsedMs = Date.now() - MATCH_START_TIME;
       const minute = Math.floor(elapsedMs / 60000);
@@ -1050,6 +1090,10 @@
       if (btn) { btn.textContent = '⏳ Simulating...'; btn.disabled = true; }
       try {
         await fetch(`${BACKEND_URL}/api/simulate`, { method: 'POST' });
+        MATCH_START_TIME = Date.now() - (45 * 60 * 1000);
+        if (document.getElementById('match-clock')) document.getElementById('match-clock').textContent = "45'";
+        if (document.getElementById('match-phase')) document.getElementById('match-phase').textContent = "HALFTIME";
+
         
         addMessage('⚡ **Halftime rush detected!** Food courts are surging. West Food Court is your best option — move now before the queue hits 20+ minutes.', 'bot');
         if (window.voiceTriggered === undefined) window.voiceTriggered = true; // force speech
@@ -1071,6 +1115,10 @@
       btn.style.opacity = '0.5'; btn.textContent = 'DEPLOYING...';
       try {
         await fetch(`${BACKEND_URL}/api/simulate`, { method: 'POST' });
+        MATCH_START_TIME = Date.now() - (45 * 60 * 1000);
+        if (document.getElementById('match-clock')) document.getElementById('match-clock').textContent = "45'";
+        if (document.getElementById('match-phase')) document.getElementById('match-phase').textContent = "HALFTIME";
+
         btn.textContent = 'SIMULATED';
         btn.style.background = 'var(--accent)';
         btn.style.animation = 'none';
@@ -1272,6 +1320,11 @@
      * @param {number} wait
      * @returns {string} color class
      */
+        function getCssColorVar(wait) {
+      if (wait <= WAIT_THRESHOLDS.ok) return 'var(--g)';
+      if (wait <= WAIT_THRESHOLDS.warn) return 'var(--w)';
+      return 'var(--r)';
+    }
     function getCssColorClass(wait) {
       if (wait <= WAIT_THRESHOLDS.ok) return 'c-ok';
       if (wait <= WAIT_THRESHOLDS.warn) return 'c-warn';
@@ -1296,94 +1349,88 @@
       });
     }
 
-    function renderNowTab(zones, section, forecasts) {
+            function renderNowTab(zones, section, forecasts) {
+      const locContainer = document.getElementById('now-location-container');
+      if (locContainer) {
+        if (!section) {
+          locContainer.innerHTML = `<div class="section-prompt" onclick="showOnboarding()">
+            <div class="section-prompt-text">Set your section<small>For personalised routing & walk times</small></div>
+            <div class="section-set-btn">Set Section</div>
+          </div>`;
+        } else {
+          locContainer.innerHTML = `<div class="section-badge" onclick="showOnboarding()">
+            📍 Section ${section} <span class="section-badge-change">[change]</span>
+          </div>`;
+        }
+      }
+
       const nowCards = document.getElementById('now-cards');
       if (!nowCards) return;
-      if (!section) {
-        if (!window.tempIntent) {
-          nowCards.innerHTML = `
-            <div style="font-family:var(--sans); font-size:18px; font-weight:600; text-align:center; margin:10px 0 20px;">What's your goal right now?</div>
-            <div class="intent-grid">
-              <div class="intent-card" onclick="setIntent('food')"><div class="intent-emoji">🍔</div><div class="intent-text">Get food fast</div></div>
-              <div class="intent-card" onclick="setIntent('exit')"><div class="intent-emoji">🚪</div><div class="intent-text">Best way out</div></div>
-              <div class="intent-card" onclick="setIntent('seat')"><div class="intent-emoji">🚶</div><div class="intent-text">Find my seat</div></div>
-            </div>
-          `;
-          return;
-        }
 
+      if (!section && window.tempIntent) {
         nowCards.innerHTML = `
-          <div class="section-picker">
+          <div class="section-picker" style="margin-top: 10px;">
             <div class="sp-title">Where are you currently sitting?</div>
-            <div class="sp-row">
-              <span class="sp-label">North stand</span>
-              <div class="sp-btn-group">
-                <div class="sp-btn" onclick="setSection('A')">A</div><div class="sp-btn" onclick="setSection('B')">B</div><div class="sp-btn" onclick="setSection('C')">C</div>
-              </div>
-            </div>
-            <div class="sp-row">
-              <span class="sp-label">East stand</span>
-              <div class="sp-btn-group">
-                <div class="sp-btn" onclick="setSection('D')">D</div><div class="sp-btn" onclick="setSection('E')">E</div><div class="sp-btn" onclick="setSection('F')">F</div>
-              </div>
-            </div>
-            <div class="sp-row">
-              <span class="sp-label">West stand</span>
-              <div class="sp-btn-group">
-                <div class="sp-btn" onclick="setSection('G')">G</div><div class="sp-btn" onclick="setSection('H')">H</div><div class="sp-btn" onclick="setSection('I')">I</div>
-              </div>
-            </div>
-            <div class="sp-row">
-              <span class="sp-label">South stand</span>
-              <div class="sp-btn-group">
-                <div class="sp-btn" onclick="setSection('J')">J</div><div class="sp-btn" onclick="setSection('K')">K</div><div class="sp-btn" onclick="setSection('L')">L</div>
-              </div>
-            </div>
+            <div class="sp-row"><span class="sp-label">North stand</span><div class="sp-btn-group"><div class="sp-btn" onclick="setSection('A')">A</div><div class="sp-btn" onclick="setSection('B')">B</div><div class="sp-btn" onclick="setSection('C')">C</div></div></div>
+            <div class="sp-row"><span class="sp-label">East stand</span><div class="sp-btn-group"><div class="sp-btn" onclick="setSection('D')">D</div><div class="sp-btn" onclick="setSection('E')">E</div><div class="sp-btn" onclick="setSection('F')">F</div></div></div>
+            <div class="sp-row"><span class="sp-label">West stand</span><div class="sp-btn-group"><div class="sp-btn" onclick="setSection('G')">G</div><div class="sp-btn" onclick="setSection('H')">H</div><div class="sp-btn" onclick="setSection('I')">I</div></div></div>
+            <div class="sp-row"><span class="sp-label">South stand</span><div class="sp-btn-group"><div class="sp-btn" onclick="setSection('J')">J</div><div class="sp-btn" onclick="setSection('K')">K</div><div class="sp-btn" onclick="setSection('L')">L</div></div></div>
           </div>
         `;
+        document.getElementById('stats-strip').style.display = 'none';
+        if (locContainer) locContainer.innerHTML = ''; // Hide prompt when picking section
         return;
       }
 
-      // If intent exists and section is set, auto-resolve it
       if (window.tempIntent) {
         const intent = window.tempIntent;
-        window.tempIntent = null; // reset before firing to avoid loops
+        window.tempIntent = null;
         switchTab('chat');
-        if (intent === 'food') chatInput.value = `Where is the shortest food queue from section ${section}?`;
-        else if (intent === 'exit') chatInput.value = `What is the best way out from section ${section}?`;
-        else if (intent === 'seat') chatInput.value = `How do I get to my seat in section ${section}?`;
+        if (intent === 'food') chatInput.value = `Where is the shortest food queue from section ${section || 'my section'}?`;
+        else if (intent === 'exit') chatInput.value = `What is the best way out from section ${section || 'my section'}?`;
+        else if (intent === 'seat') chatInput.value = `How do I get to my seat in section ${section || 'my section'}?`;
+        else if (intent === 'restroom') chatInput.value = `Where is the nearest restroom from section ${section || 'my section'}?`;
         setTimeout(handleSend, 100);
       }
 
-      // Very simple local sort
       const byWait = type => zones.filter(z => z.type === type).sort((a,b)=>a.wait-b.wait);
-      const cards = [{l:'Best food', z:byWait('food')[0], i:'🍔'}, {l:'Best gate', z:byWait('gate')[0], i:'🚪'}, {l:'Nearest restroom', z:byWait('restroom')[0], i:'🚻'}];
+      const bestFood = byWait('food')[0];
+      const bestGate = byWait('gate')[0];
+      const avgWait = Math.round(zones.reduce((s,z) => s+z.wait, 0) / zones.length);
+
+      document.getElementById('stats-strip').style.display = 'grid';
+      const sf = document.getElementById('stat-best-food');
+      if (sf && bestFood) { sf.textContent = bestFood.wait + 'm'; sf.style.color = getCssColorVar(bestFood.wait); }
+      const sg = document.getElementById('stat-best-gate');
+      if (sg && bestGate) { sg.textContent = bestGate.wait + 'm'; sg.style.color = getCssColorVar(bestGate.wait); }
+      const sa = document.getElementById('stat-avg-wait');
+      if (sa) { sa.textContent = avgWait + 'm'; sa.style.color = getCssColorVar(avgWait); }
+
+      const cards = [{l:'Get food fast', z:bestFood, i:'🍔', c:'food'}, {l:'Best way out', z:bestGate, i:'🚪', c:'exit'}, {l:'Nearest restroom', z:byWait('restroom')[0], i:'🚻', c:'restroom'}];
       
       nowCards.innerHTML = cards.map((c, index) => {
         if (!c.z) return '';
-        const fc = forecasts[c.z.id];
-        let tr = '→ stable'; let tc = '';
-        if (fc && fc.trend === 'rising') { tr = '↑ rising'; tc = 'trend-danger'; }
-        if (fc && fc.trend === 'falling') { tr = '↓ easing'; tc = 'trend-accent'; }
-
+        const waitColor = getCssColorVar(c.z.wait);
+        const sub = section ? `${c.z.name} · ${Math.round(c.z.wait/2)} min walk` : 'Set section for personalised routing';
+        const wait = c.z.wait;
+        const onClickAction = section ? `sendQuick('Best ${c.l.toLowerCase()} from my section?')` : `setIntent('${c.c}')`;
+        
         return `
-          <div class="now-card" onclick="sendQuick('Best ${c.l.toLowerCase()} from my section?')">
-            <div class="now-card-left">
-              <div class="now-card-icon">${c.i}</div>
-              <div class="now-card-body">
-                <div class="now-card-label">${c.l}</div>
-                <div class="now-card-name">${c.z.name}</div>
-                <div class="now-card-trend"><span class="${tc}">${tr}</span></div>
-              </div>
+          <div class="goal-card" onclick="${onClickAction}">
+            <div class="goal-accent goal-accent--${c.c === 'restroom' ? 'seat' : c.c}"></div>
+            <div class="goal-icon">${c.i}</div>
+            <div class="goal-body">
+              <div class="goal-title">${c.l}</div>
+              <div class="goal-sub">${sub}</div>
             </div>
-            <canvas class="sparkline" style="width:100%;height:28px;display:block;margin-top:8px" aria-hidden="true"></canvas>
-            <div class="now-card-right">
-              <div class="now-card-wait ${getCssColorClass(c.z.wait)}">${c.z.wait}<span class="unit">min</span></div>
+            <div class="goal-stat">
+              <div class="goal-wait" style="color:${waitColor}">${wait}<span class="goal-unit">m</span></div>
+              <div class="goal-stat-label">QUEUE</div>
             </div>
+            <span class="goal-arrow">›</span>
           </div>
         `;
       }).join('');
-      setTimeout(updateSparklines, 100);
     }
 
     function showOnboarding() {
@@ -1433,15 +1480,24 @@
       if(!zones || !zones.length) return;
       const grid = document.createElement('div');
       grid.className = 'inline-zones';
-      grid.innerHTML = zones.map(z => `
-        <div class="zone-card" onclick="document.getElementById('chat-input').value='Tell me more about ${z.name}'; document.getElementById('chat-input').focus();">
-          <div class="zone-card-name">${z.name}</div>
-          <div class="zone-card-wait ${getCssColorClass(z.wait)}">${z.wait}<span class="unit">min</span></div>
-          <div class="zone-bar-track">
-            <div class="zone-bar-fill ${getBgColorClass(z.wait)}" style="width:${z.capacity*100}%"></div>
+      grid.style.display = 'flex';
+      grid.style.gap = '8px';
+      grid.style.overflowX = 'auto';
+      grid.style.paddingBottom = '8px';
+      grid.innerHTML = zones.map((z, i) => {
+        const barClass = z.wait <= 5 ? 'zone-bar--ok' : z.wait <= 14 ? 'zone-bar--warn' : 'zone-bar--bad';
+        const waitColor = getCssColorVar(z.wait);
+        const bestClass = i === 0 ? 'zone-card--best' : '';
+        return `
+        <div class="zone-card ${bestClass}" onclick="document.getElementById('chat-input').value='Tell me more about ${z.name}'; document.getElementById('chat-input').focus();" style="display: block; padding: 12px; min-width: 110px; flex-shrink: 0;">
+          <div class="zone-card-name" style="font-size: 13px; font-weight: 600; color: var(--t); margin-bottom: 6px; white-space: normal; line-height: 1.2;">${z.name}</div>
+          <div class="zone-card-wait" style="font-family: var(--mono); font-size: 22px; font-weight: 700; line-height: 1; color:${waitColor}">${z.wait}<span style="font-size: 10px; font-weight: normal; opacity: 0.6; margin-left: 2px;">min</span></div>
+          <div class="zone-bar-track" style="height: 4px; background: var(--b1); border-radius: 2px; margin-top: 8px; overflow: hidden;">
+            <div class="zone-bar-fill ${barClass}" style="width:${z.capacity*100}%; height: 100%; border-radius: 2px;"></div>
           </div>
         </div>
-      `).join('');
+        `;
+      }).join('');
       container.appendChild(grid);
     }
 
@@ -1557,15 +1613,31 @@
 
     function renderZoneGrid(zones, container) {
       if(!container) return;
-      container.innerHTML = zones.map((z, index) => `
-        <div class="zone-card" style="animation-delay: ${0.06 * index}s">
-          <div class="zone-card-name">${z.name}</div>
-          <div class="zone-card-wait ${getCssColorClass(z.wait)}">${z.wait}<span class="unit">min</span></div>
-          <div class="zone-bar-track">
-            <div class="zone-bar-fill ${getBgColorClass(z.wait)}" style="width:${Math.round(z.capacity*100)}%"></div>
+      container.innerHTML = zones.map((z, index) => {
+        const typeIcon  = z.type === 'food' ? '🍔' : z.type === 'gate' ? '🚪' : '🚻';
+        const typeClass = z.type === 'food' ? 'badge-food' : z.type === 'gate' ? 'badge-gate' : 'badge-rest';
+        const typeLabel = z.type === 'food' ? 'FOOD' : z.type === 'gate' ? 'GATE' : 'REST';
+        const accentColor = z.capacity < 0.4 ? 'var(--g)' : z.capacity < 0.7 ? 'var(--w)' : 'var(--r)';
+        const waitColor = getCssColorVar(z.wait);
+        const barClass = z.wait <= 5 ? 'zone-bar--ok' : z.wait <= 14 ? 'zone-bar--warn' : 'zone-bar--bad';
+        return `
+        <div class="zone-card" style="animation-delay: ${0.06 * index}s" data-zone-type="${z.type}">
+          <div class="zone-left-accent" style="background: ${accentColor}"></div>
+          <div class="zone-card-body">
+            <div class="zone-type-row">
+              <span class="zone-icon">${typeIcon}</span>
+              <span class="zone-type-badge ${typeClass}">${typeLabel}</span>
+            </div>
+            <div class="zone-name">${z.name}</div>
+            <div class="zone-wait-row">
+              <span class="zone-wait-num" style="color:${waitColor}">${z.wait}</span>
+              <span class="zone-wait-unit">min</span>
+            </div>
+            <div class="zone-bar"><div class="zone-bar-fill ${barClass}" style="width:${Math.round(z.capacity*100)}%"></div></div>
           </div>
         </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function flashZones() {
@@ -1577,31 +1649,76 @@
     }
 
     // ALERTS
+    function getAlertClass(alert) {
+      if (alert.source === 'exit-coordinator' || alert.type === 'exit') return 'exit-alert';
+      if (alert.urgency === 'urgent' && alert.source !== 'gemini') return 'critical';
+      if (alert.urgency === 'urgent' || alert.type === 'urgent') return 'critical';
+      if (alert.source === 'halftime-predictor' || alert.source === 'gemini' || alert.type === 'info') return 'info-alert';
+      return 'routine';
+    }
+
+    function getAlertSource(alert) {
+      if (alert.source === 'gemini') return 'GEMINI · AUTO-DETECTED';
+      if (alert.source === 'operator') return 'OPS CENTRE · BROADCAST';
+      if (alert.source === 'halftime-predictor') return 'GEMINI · PREDICTED';
+      if (alert.source === 'exit-coordinator') return 'OPS CENTRE · BROADCAST';
+      return 'SYSTEM';
+    }
+
     function renderAlerts(alerts) {
       if(!alerts.length) {
         alertsList.innerHTML = `<div class="empty-state">No active alerts.</div>`;
         return;
       }
-      alertsList.innerHTML = alerts.map(a => {
-        let cls = 'alert-info';
-        if(a.type==='urgent') cls = 'alert-urgent';
-        if(a.type==='exit') cls = 'alert-exit';
-        
-        const diff = Math.round((Date.now() - (a.timestamp||a.time||Date.now())) / 60000);
-        let ts = diff < 1 ? 'just now' : diff < 60 ? `${diff}m ago` : `${Math.round(diff/60)}h ago`;
+      
+      const now = Date.now();
+      const active = alerts.filter(a => (now - (a.timestamp||a.time||now)) < 30 * 60000);
+      const earlier = alerts.filter(a => (now - (a.timestamp||a.time||now)) >= 30 * 60000);
 
-        return `
-          <div class="alert-card ${cls}" role="alert">
-            <div class="alert-icon">${a.icon||'ℹ️'}</div>
-            <div class="alert-content">
-              <div class="alert-title">${escapeHtml(a.title)}</div>
-              <div class="alert-body">${escapeHtml(a.body)}</div>
-              <div class="alert-time">${ts}</div>
+      let html_alerts = '';
+      
+      function renderGroup(group) {
+        return group.map(a => {
+          const cls = getAlertClass(a);
+          const diff = Math.round((now - (a.timestamp||a.time||now)) / 60000);
+          let ts = diff < 1 ? 'just now' : diff < 60 ? `${diff}m ago` : `${Math.round(diff/60)}h ago`;
+          const source = getAlertSource(a);
+          
+          let defaultDetails = 'To avoid the crowds, we recommend using the alternative routing provided in the Map tab. The ops center is currently monitoring the situation.';
+          if (a.title && a.title.toLowerCase().includes('exit')) defaultDetails = 'Please follow the dynamic signage. Gates A and B are being prioritized for upper tier sections. VIPs may use Gate C as usual.';
+          else if (a.title && a.title.toLowerCase().includes('halftime')) defaultDetails = 'Concourse congestion is reaching peak levels. Consider ordering food to your seat via the app, or waiting until the 55th minute when queues typically drop by 60%.';
+          else if (a.title && a.title.toLowerCase().includes('rain')) defaultDetails = 'Umbrellas are not permitted in the seating bowl. Please utilize the covered concourses on Level 2 and Level 3.';
+          else if (a.type === 'urgent') defaultDetails = 'This is an urgent operational alert. Follow instructions from stadium stewards. Do not attempt to bypass cordons.';
+          
+          const detailsText = a.details || defaultDetails;
+          
+          return `
+            <div class="alert-card ${cls} ${diff < 1 ? 'new-alert' : ''}" role="alert">
+              <div class="alert-stripe"></div>
+              <div class="alert-content">
+                <div class="alert-top">
+                  <div class="alert-icon-wrap">${a.icon||'ℹ️'}</div>
+                  <div class="alert-title-col">
+                    <div class="alert-title">${escapeHtml(a.title)}</div>
+                    <div class="alert-source">${source}</div>
+                  </div>
+                  <div class="alert-time">${ts}</div>
+                </div>
+                <div class="alert-body">${escapeHtml(a.body)}</div>
+                ${(cls === 'critical' || cls === 'exit-alert') ? `<button class="alert-action" onclick="this.nextElementSibling.style.display='block'; this.style.display='none';">View details</button><div class="alert-details" style="display: none; margin-top: 10px; font-size: 12px; color: var(--m); padding-top: 10px; border-top: 1px dashed var(--b2); line-height: 1.4;">${escapeHtml(detailsText)}</div>` : ''}
+              </div>
             </div>
-          </div>
-        `;
-      }).join('');
-      setTimeout(updateSparklines, 100);
+          `;
+        }).join('');
+      }
+
+      if (active.length) {
+        html_alerts += `<div class="alerts-section-title">🔴 Active now</div>` + renderGroup(active);
+      }
+      if (earlier.length) {
+        html_alerts += `<div class="alerts-section-title">📋 Earlier</div>` + renderGroup(earlier);
+      }
+      alertsList.innerHTML = html_alerts;
     }
 
     // GROUP
@@ -1775,7 +1892,7 @@
       document.querySelector('.panel.active')?.appendChild(overlay);
     }
     function hideVoiceOverlay() { document.getElementById('voice-overlay')?.remove(); }
-    function speakResponse(text) {
+    window.speakResponse = function speakResponse(text) {
       if (!synthesis || !preferVoice) return;
       synthesis.cancel();
       const clean = text.replace(/\*\*(.*?)\*\*/g, '$1').replace(/[*_`]/g, '');
