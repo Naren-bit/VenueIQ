@@ -1878,12 +1878,12 @@
       recognition.onerror = () => { document.getElementById('voice-btn')?.classList.remove('listening'); hideVoiceOverlay(); };
     }
     let voiceActive = false;
-    function startVoice() {
+    window.startVoice = function startVoice() {
       if (!recognition) return;
       synthesis.cancel();
       try { recognition.start(); voiceActive = true; } catch(e) {}
     }
-    function stopVoice() {
+    window.stopVoice = function stopVoice() {
       if (!recognition || !voiceActive) return;
       try { recognition.stop(); voiceActive = false; } catch(e) {}
     }
